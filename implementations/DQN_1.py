@@ -117,13 +117,13 @@ class MECEnvironment(gym.Env):
     
     def _calculate_reward(self, energy, latency, server_load):
         """Calculate reward based on energy, latency and load balancing"""
-        energy_weight = 0.4
-        latency_weight = 0.4
-        load_weight = 0.2
+        energy_weight = 0
+        latency_weight = 100
+        load_weight = 0
         
         # Normalize values
         norm_energy = -energy / 2.0  # Assuming max energy is 2.0
-        norm_latency = -latency / 2.0  # Assuming max latency is 2.0
+        norm_latency = -latency / 10.0  # Assuming max latency is 2.0
         load_balancing = -abs(server_load - np.mean(self.server_loads))
         
         return (energy_weight * norm_energy + 
@@ -150,9 +150,9 @@ class DQNAgent:
         # DQN hyperparameters
         self.gamma = 0.99  # discount factor
         self.epsilon = 1.0  # exploration rate
-        self.epsilon_min = 0.1  # Increased minimum epsilon
+        self.epsilon_min = 0.01  # Increased minimum epsilon
         self.epsilon_decay = 0.999  # Slower decay rate
-        self.learning_rate = 0.0005  # Reduced learning rate
+        self.learning_rate = 0.001  # Reduced learning rate
         self.batch_size = 128  # Increased batch size
         self.min_replay_size = 1000  # Minimum replay buffer size before training
         
