@@ -135,27 +135,122 @@ class MECEnvironment(gym.Env):
         self.network_conditions += fluctuation
         self.network_conditions = np.clip(self.network_conditions, 0.1, 1.0)
 
+
+class DQNAgent:
+    """DQN Agent for VEC task offloading"""
+    def __init__(self, state_size, action_size):
+        self.state_size = state_size
+        self.action_size = action_size
+        
+        # DQN hyperparameters
+        self.gamma = 0.99  # discount factor
+        self.epsilon = 1.0  # exploration rate
+        self.epsilon_min = 0.01
+        self.epsilon_decay = 0.995
+        self.learning_rate = 0.001
+        self.batch_size = 64
+        
+        # Create Q-Networks (current and target)
+        self.q_network = DQNNetwork(state_size, action_size)
+        self.target_network = DQNNetwork(state_size, action_size)
+        self.target_network.load_state_dict(self.q_network.state_dict())
+        
+        self.optimizer = optim.Adam(self.q_network.parameters(), lr=self.learning_rate)
+        
+        # Replay buffer
+        self.replay_buffer = ReplayBuffer(100000)
+        
+    def select_action(self, state):
+        """Select action using epsilon-greedy policy"""
+        if random.random() < self.epsilon:
+            return random.randrange(self.action_size)
+        
+        with torch.no_grad():
+            # Ensure state is a float tensor with correct shape
+            if isinstance(state, np.ndarray):
+                state = torch.FloatTensor(state)
+            if state.dim() == 1:
+                state = state.unsqueeze(0)
+            q_values = self.q_network(state)
+            return q_values.argmax().item()
+        
+    def train(self):
+        """Train the agent using experience replay"""
+        if len(self.replay_buffer) < self.batch_size:
+            return
+        
+        # Sample batch from replay buffer
+        batch = self.replay_buffer.sample(self.batch_size)
+        states, actions, rewards, next_states, dones = zip(*batch)
+        
+        # Convert to tensors
+        states = torch.FloatTensor(states)
+        actions = torch.LongTensor(actions)
+        rewards = torch.FloatTensor(rewards)
+        next_states = torch.FloatTensor(next_states)
+        dones = torch.FloatTensor(dones)
+        
+        # Compute current Q values
+        current_q_values = self.q_network(states).gather(1, actions.unsqueeze(1))
+        
+        # Compute next Q values
+        with torch.no_grad():
+            next_q_values = self.target_network(next_states).max(1)[0]
+            target_q_values = rewards + (1 - dones) * self.gamma * next_q_values
+        
+        # Compute loss and update
+        loss = nn.MSELoss()(current_q_values.squeeze(), target_q_values)
+        
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+        
+        # Update epsilon
+        self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
+        
+    def update_target_network(self):
+        """Update target network parameters"""
+        self.target_network.load_state_dict(self.q_network.state_dict())
+
+class ReplayBuffer:
+    """Experience Replay Buffer"""
+    def __init__(self, capacity):
+        self.buffer = deque(maxlen=capacity)
+    
+    def push(self, state, action, reward, next_state, done):
+        self.buffer.append((state, action, reward, next_state, done))
+    
+    def sample(self, batch_size):
+        return random.sample(self.buffer, batch_size)
+    
+    def __len__(self):
+        return len(self.buffer)
+
+
 class DQNNetwork(nn.Module):
     """Deep Q-Network with extended architecture"""
     def __init__(self, state_size, action_size):
         super(DQNNetwork, self).__init__()
         
+        # Network layers
         self.fc1 = nn.Linear(state_size, 256)
-        self.bn1 = nn.BatchNorm1d(256)
         self.fc2 = nn.Linear(256, 256)
-        self.bn2 = nn.BatchNorm1d(256)
         self.fc3 = nn.Linear(256, 128)
-        self.bn3 = nn.BatchNorm1d(128)
         self.fc4 = nn.Linear(128, action_size)
+        
+        # Layer normalization instead of batch normalization
+        self.ln1 = nn.LayerNorm(256)
+        self.ln2 = nn.LayerNorm(256)
+        self.ln3 = nn.LayerNorm(128)
         
         self.dropout = nn.Dropout(0.2)
         
     def forward(self, x):
-        x = torch.relu(self.bn1(self.fc1(x)))
+        x = torch.relu(self.ln1(self.fc1(x)))
         x = self.dropout(x)
-        x = torch.relu(self.bn2(self.fc2(x)))
+        x = torch.relu(self.ln2(self.fc2(x)))
         x = self.dropout(x)
-        x = torch.relu(self.bn3(self.fc3(x)))
+        x = torch.relu(self.ln3(self.fc3(x)))
         return self.fc4(x)
 
 def train_mec_dqn():
