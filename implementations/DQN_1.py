@@ -6,6 +6,7 @@ from collections import deque
 import random
 import gym
 from gym import spaces
+import matplotlib.pyplot as plt
 
 class MECEnvironment(gym.Env):
     """Custom Environment for Mobile Edge Computing with Different Task Complexities"""
@@ -142,20 +143,27 @@ class DQNAgent:
         self.state_size = state_size
         self.action_size = action_size
         
+        # Set up device
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        print(f"Using device: {self.device}")
+        
         # DQN hyperparameters
         self.gamma = 0.99  # discount factor
         self.epsilon = 1.0  # exploration rate
-        self.epsilon_min = 0.01
-        self.epsilon_decay = 0.995
-        self.learning_rate = 0.001
-        self.batch_size = 64
+        self.epsilon_min = 0.1  # Increased minimum epsilon
+        self.epsilon_decay = 0.999  # Slower decay rate
+        self.learning_rate = 0.0005  # Reduced learning rate
+        self.batch_size = 128  # Increased batch size
+        self.min_replay_size = 1000  # Minimum replay buffer size before training
         
         # Create Q-Networks (current and target)
-        self.q_network = DQNNetwork(state_size, action_size)
-        self.target_network = DQNNetwork(state_size, action_size)
+        self.q_network = DQNNetwork(state_size, action_size, self.device)
+        self.target_network = DQNNetwork(state_size, action_size, self.device)
         self.target_network.load_state_dict(self.q_network.state_dict())
         
-        self.optimizer = optim.Adam(self.q_network.parameters(), lr=self.learning_rate)
+        self.optimizer = optim.Adam(self.q_network.parameters(), 
+                                  lr=self.learning_rate,
+                                  weight_decay=1e-5)  # Added L2 regularization
         
         # Replay buffer
         self.replay_buffer = ReplayBuffer(100000)
@@ -166,34 +174,34 @@ class DQNAgent:
             return random.randrange(self.action_size)
         
         with torch.no_grad():
-            # Ensure state is a float tensor with correct shape
             if isinstance(state, np.ndarray):
                 state = torch.FloatTensor(state)
             if state.dim() == 1:
                 state = state.unsqueeze(0)
+            state = state.to(self.device)
             q_values = self.q_network(state)
-            return q_values.argmax().item()
-        
+            return q_values.cpu().argmax().item()
+    
     def train(self):
         """Train the agent using experience replay"""
-        if len(self.replay_buffer) < self.batch_size:
-            return
+        if len(self.replay_buffer) < self.min_replay_size:
+            return 0  # Return loss for monitoring
         
         # Sample batch from replay buffer
         batch = self.replay_buffer.sample(self.batch_size)
         states, actions, rewards, next_states, dones = zip(*batch)
         
-        # Convert to tensors
-        states = torch.FloatTensor(states)
-        actions = torch.LongTensor(actions)
-        rewards = torch.FloatTensor(rewards)
-        next_states = torch.FloatTensor(next_states)
-        dones = torch.FloatTensor(dones)
+        # Convert to tensors and move to device
+        states = torch.FloatTensor(np.array(states)).to(self.device)
+        actions = torch.LongTensor(actions).to(self.device)
+        rewards = torch.FloatTensor(rewards).to(self.device)
+        next_states = torch.FloatTensor(np.array(next_states)).to(self.device)
+        dones = torch.FloatTensor(dones).to(self.device)
         
         # Compute current Q values
         current_q_values = self.q_network(states).gather(1, actions.unsqueeze(1))
         
-        # Compute next Q values
+        # Compute next Q values with target network
         with torch.no_grad():
             next_q_values = self.target_network(next_states).max(1)[0]
             target_q_values = rewards + (1 - dones) * self.gamma * next_q_values
@@ -203,10 +211,15 @@ class DQNAgent:
         
         self.optimizer.zero_grad()
         loss.backward()
+        # Gradient clipping to prevent exploding gradients
+        torch.nn.utils.clip_grad_norm_(self.q_network.parameters(), max_norm=1.0)
         self.optimizer.step()
         
-        # Update epsilon
-        self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
+        # Update epsilon with slower decay
+        if self.epsilon > self.epsilon_min:
+            self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
+            
+        return loss.item()  # Return loss for monitoring
         
     def update_target_network(self):
         """Update target network parameters"""
@@ -229,8 +242,10 @@ class ReplayBuffer:
 
 class DQNNetwork(nn.Module):
     """Deep Q-Network with extended architecture"""
-    def __init__(self, state_size, action_size):
+    def __init__(self, state_size, action_size, device):
         super(DQNNetwork, self).__init__()
+        
+        self.device = device
         
         # Network layers
         self.fc1 = nn.Linear(state_size, 256)
@@ -245,7 +260,11 @@ class DQNNetwork(nn.Module):
         
         self.dropout = nn.Dropout(0.2)
         
+        # Move the network to the specified device
+        self.to(device)
+        
     def forward(self, x):
+        x = x.to(self.device)
         x = torch.relu(self.ln1(self.fc1(x)))
         x = self.dropout(x)
         x = torch.relu(self.ln2(self.fc2(x)))
@@ -261,24 +280,26 @@ def train_mec_dqn():
     # Calculate state size
     state_size = (env.task_types + 
                  env.num_edge_servers + 
-                 env.num_edge_servers)  # task_queue + server_states + network_conditions
+                 env.num_edge_servers)
     action_size = env.action_space.n
     
     # Initialize DQN agent
     agent = DQNAgent(state_size, action_size)
     
     # Training parameters
-    num_episodes = 1000
-    max_steps = 100
-    target_update_frequency = 10
-    eval_frequency = 50
+    num_episodes = 3000
+    max_steps = 200  # Increased max steps
+    target_update_frequency = 20  # Less frequent target updates
+    eval_frequency = 10
     
     # Metrics tracking
     rewards_history = []
+    losses_history = []
+    epsilons_history = []
+    avg_rewards_history = []
     
     for episode in range(num_episodes):
         state = env.reset()
-        # Flatten the state dictionary
         state = np.concatenate([
             state['task_queue'],
             state['server_states'],
@@ -286,6 +307,7 @@ def train_mec_dqn():
         ])
         
         episode_reward = 0
+        episode_losses = []
         
         for step in range(max_steps):
             # Select and perform action
@@ -301,7 +323,9 @@ def train_mec_dqn():
             
             # Store transition and train
             agent.replay_buffer.push(state, action, reward, next_state, done)
-            agent.train()
+            loss = agent.train()
+            if loss is not None:
+                episode_losses.append(loss)
             
             state = next_state
             episode_reward += reward
@@ -313,25 +337,77 @@ def train_mec_dqn():
         if episode % target_update_frequency == 0:
             agent.update_target_network()
         
-        # Store rewards for plotting
+        # Store metrics
         rewards_history.append(episode_reward)
+        if episode_losses:
+            losses_history.append(np.mean(episode_losses))
+        epsilons_history.append(agent.epsilon)
+        
+        # Calculate running average
+        if episode >= eval_frequency:
+            avg_reward = np.mean(rewards_history[-eval_frequency:])
+            avg_rewards_history.append(avg_reward)
         
         # Print progress
         if episode % eval_frequency == 0:
             avg_reward = np.mean(rewards_history[-eval_frequency:])
-            print(f"Episode {episode + 1}/{num_episodes}, "
+            avg_loss = np.mean(losses_history[-eval_frequency:]) if losses_history else 0
+            print(f"Episode {episode}/{num_episodes}, "
                   f"Average Reward: {avg_reward:.2f}, "
-                  f"Epsilon: {agent.epsilon:.2f}")
+                  f"Average Loss: {avg_loss:.4f}, "
+                  f"Epsilon: {agent.epsilon:.3f}")
     
-    return agent, rewards_history
+    return agent, {
+        'rewards': rewards_history,
+        'losses': losses_history,
+        'epsilons': epsilons_history,
+        'avg_rewards': avg_rewards_history
+    }
+
+
+
+def plot_training_results(metrics):
+    """Plot training metrics including rewards, losses, and epsilon"""
+    plt.figure(figsize=(15, 10))
+    
+    # Plot rewards
+    plt.subplot(3, 1, 1)
+    plt.plot(metrics['rewards'], alpha=0.6, label='Episode Reward')
+    
+    # Calculate and plot moving average with correct dimensions
+    window_size = 10
+    if len(metrics['rewards']) > window_size:
+        moving_avg = np.convolve(metrics['rewards'], 
+                               np.ones(window_size)/window_size, 
+                               mode='valid')
+        x_avg = np.arange(window_size-1, len(metrics['rewards']))
+        plt.plot(x_avg, moving_avg, 'r-', label='Moving Average')
+    
+    plt.xlabel('Episode')
+    plt.ylabel('Reward')
+    plt.legend()
+    plt.title('Training Rewards')
+    plt.grid(True)
+    
+    # Plot losses
+    plt.subplot(3, 1, 2)
+    plt.plot(metrics['losses'], label='Loss')
+    plt.xlabel('Episode')
+    plt.ylabel('Loss')
+    plt.title('Training Loss')
+    plt.grid(True)
+    
+    # Plot epsilon
+    plt.subplot(3, 1, 3)
+    plt.plot(metrics['epsilons'], label='Epsilon')
+    plt.xlabel('Episode')
+    plt.ylabel('Epsilon')
+    plt.title('Exploration Rate (Epsilon)')
+    plt.grid(True)
+    
+    plt.tight_layout()
+    plt.show()
 
 if __name__ == "__main__":
-    agent, rewards = train_mec_dqn()
-    
-    # Plot training results
-    import matplotlib.pyplot as plt
-    plt.plot(rewards)
-    plt.title('Training Rewards')
-    plt.xlabel('Episode')
-    plt.ylabel('Total Reward')
-    plt.show()
+    agent, metrics = train_mec_dqn()
+    plot_training_results(metrics)
