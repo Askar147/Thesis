@@ -12,15 +12,21 @@ import os
 import json
 from datetime import datetime
 
+import numpy as np
+import torch
+import torch.nn.functional as F
+import gym
+from gym import spaces
 
 class MECEnvironment(gym.Env):
+    """Enhanced MEC Environment with realistic latency components and improved server load dynamics"""
     def __init__(self, num_edge_servers=10, continuous_action=False):
         super().__init__()
         
         self.num_edge_servers = num_edge_servers
         self.continuous_action = continuous_action
         
-        # Action space unchanged
+        # Action space definition
         if continuous_action:
             self.action_space = spaces.Box(
                 low=0, high=1, shape=(num_edge_servers,), dtype=np.float32
@@ -28,106 +34,93 @@ class MECEnvironment(gym.Env):
         else:
             self.action_space = spaces.Discrete(num_edge_servers)
         
-        # Observation space unchanged
+        # Observation space includes task size, server speeds, loads, network conditions, and distances.
         self.observation_space = spaces.Dict({
-            'task_size': spaces.Box(
-                low=0,
-                high=1,
-                shape=(1,),
-                dtype=np.float32
-            ),
-            'server_speeds': spaces.Box(
-                low=np.zeros(num_edge_servers),
-                high=np.ones(num_edge_servers),
-                dtype=np.float32
-            ),
-            'server_loads': spaces.Box(
-                low=np.zeros(num_edge_servers),
-                high=np.ones(num_edge_servers),
-                dtype=np.float32
-            ),
-            'network_conditions': spaces.Box(
-                low=np.zeros(num_edge_servers),
-                high=np.ones(num_edge_servers),
-                dtype=np.float32
-            ),
-            'server_distances': spaces.Box(
-                low=np.zeros(num_edge_servers),
-                high=np.ones(num_edge_servers),
-                dtype=np.float32
-            )
+            'task_size': spaces.Box(low=0, high=1, shape=(1,), dtype=np.float32),
+            'server_speeds': spaces.Box(low=np.zeros(num_edge_servers), high=np.ones(num_edge_servers), dtype=np.float32),
+            'server_loads': spaces.Box(low=np.zeros(num_edge_servers), high=np.ones(num_edge_servers), dtype=np.float32),
+            'network_conditions': spaces.Box(low=np.zeros(num_edge_servers), high=np.ones(num_edge_servers), dtype=np.float32),
+            'server_distances': spaces.Box(low=np.zeros(num_edge_servers), high=np.ones(num_edge_servers), dtype=np.float32)
         })
         
-        # Initialize with better ranges
-        self.server_speeds = np.random.uniform(0.7, 1.0, num_edge_servers)  # Higher minimum speed
+        # Initialize server characteristics with improved ranges
+        self.server_speeds = np.random.uniform(0.7, 1.0, num_edge_servers)   # Higher minimum speed
         self.server_distances = np.random.uniform(0.1, 0.8, num_edge_servers)  # Lower maximum distance
-        self.bandwidth_up = np.random.uniform(0.6, 1.0, num_edge_servers)  # Better minimum bandwidth
-        self.bandwidth_down = np.random.uniform(0.7, 1.0, num_edge_servers)  # Better minimum bandwidth
+        self.bandwidth_up = np.random.uniform(0.6, 1.0, num_edge_servers)      # Better uplink bandwidth
+        self.bandwidth_down = np.random.uniform(0.7, 1.0, num_edge_servers)    # Better downlink bandwidth
+        
+        # Scaling factors for various latency components (adjustable)
+        self.uplink_scale = 0.8
+        self.prop_scale = 0.05
+        self.downlink_scale = 0.8
+        self.queue_factor = 1.2
+        self.decay_factor = 0.95  # For exponential decay of non-selected server loads
+        
         self.reset()
     
     def reset(self):
+        """Reset environment state with new task and updated loads/conditions"""
         self.current_task_size = np.random.uniform(0.2, 0.8)  # Smaller maximum task size
         self.server_loads = np.random.uniform(0.1, 0.3, self.num_edge_servers)  # Lower initial loads
         self.network_conditions = np.random.uniform(0.8, 1.0, self.num_edge_servers)  # Better network conditions
         return self._get_observation()
     
     def _calculate_total_latency(self, server_idx):
-        # 1. Uplink transmission delay (reduced impact)
+        """Calculate total latency including uplink, propagation, processing, downlink, and queuing delays"""
+        # 1. Uplink transmission delay
         uplink_delay = (self.current_task_size / self.bandwidth_up[server_idx]) * \
-                      (1 / self.network_conditions[server_idx]) * 0.8  # Scale down
+                       (1 / self.network_conditions[server_idx]) * self.uplink_scale
         
-        # 2. Propagation delay (reduced impact)
-        prop_delay = self.server_distances[server_idx] * 0.05  # Reduced impact
+        # 2. Propagation delay based on distance
+        prop_delay = self.server_distances[server_idx] * self.prop_scale
         
-        # 3. Processing delay (main component)
+        # 3. Processing delay (affected by server load)
         effective_speed = self.server_speeds[server_idx] * (1 - self.server_loads[server_idx])
         processing_delay = self.current_task_size / max(effective_speed, 0.1)
         
-        # 4. Downlink delay (reduced impact)
-        result_size = self.current_task_size * 0.05  # Smaller result size
+        # 4. Downlink transmission delay (assume result is a fraction of input size)
+        result_size = self.current_task_size * 0.05
         downlink_delay = (result_size / self.bandwidth_down[server_idx]) * \
-                        (1 / self.network_conditions[server_idx]) * 0.8  # Scale down
+                         (1 / self.network_conditions[server_idx]) * self.downlink_scale
         
-        # 5. Queuing delay (more impactful)
-        queue_delay = self.server_loads[server_idx] * processing_delay * 1.2
+        # 5. Queuing delay (scaled by server load)
+        queue_delay = self.server_loads[server_idx] * processing_delay * self.queue_factor
         
         total_delay = uplink_delay + prop_delay + processing_delay + downlink_delay + queue_delay
         return total_delay
     
     def step(self, action):
+        """Take an action, update state, and return observation, reward, done flag, and info."""
         if self.continuous_action:
             action_probs = F.softmax(torch.FloatTensor(action), dim=0).numpy()
             selected_server = np.argmax(action_probs)
         else:
             selected_server = action
         
-        # Calculate latency
+        # Calculate latency for the chosen server
         total_latency = self._calculate_total_latency(selected_server)
         
-        # Calculate reward with better scaling
-        normalized_latency = total_latency / 5.0  # Scale down latency
-        base_reward = -np.tanh(normalized_latency)  # Base reward between -1 and 1
+        # Compute a normalized latency for reward scaling
+        normalized_latency = total_latency / 5.0  # Adjust scale as needed
+        base_reward = -np.tanh(normalized_latency)  # Reward between -1 and 1
         
-        # Add bonus for good choices
+        # Add bonus for selecting a server with the highest effective speed
         available_speeds = self.server_speeds * (1 - self.server_loads)
         if selected_server == np.argmax(available_speeds):
-            base_reward += 0.3  # Bonus for optimal choice
+            base_reward += 0.3
         elif available_speeds[selected_server] >= np.percentile(available_speeds, 75):
-            base_reward += 0.1  # Smaller bonus for good choice
+            base_reward += 0.1
         
-        # Penalize very high loads
+        # Penalize if server load is very high
         if self.server_loads[selected_server] > 0.8:
             base_reward -= 0.2
         
-        # Update environment
+        # Update environment state
         self._update_server_loads(selected_server)
         self._update_network_conditions()
         self.current_task_size = np.random.uniform(0.2, 0.8)
         
-        # Get new observation
         observation = self._get_observation()
-        
-        # Additional info
         info = {
             'selected_server': selected_server,
             'server_load': self.server_loads[selected_server],
@@ -138,44 +131,17 @@ class MECEnvironment(gym.Env):
         
         return observation, base_reward, False, info
     
-    def _calculate_total_latency(self, server_idx):
-        """Calculate total latency including all components"""
-        # 1. Uplink transmission delay
-        uplink_delay = (self.current_task_size / self.bandwidth_up[server_idx]) * \
-                      (1 / self.network_conditions[server_idx])
-        
-        # 2. Propagation delay based on distance
-        prop_delay = self.server_distances[server_idx] * 0.1  # Normalized propagation delay
-        
-        # 3. Processing delay (affected by server load)
-        effective_speed = self.server_speeds[server_idx] * (1 - self.server_loads[server_idx])
-        processing_delay = self.current_task_size / max(effective_speed, 0.1)
-        
-        # 4. Downlink transmission delay (assume result size is proportional to task size)
-        result_size = self.current_task_size * 0.1  # Assume result is 10% of input size
-        downlink_delay = (result_size / self.bandwidth_down[server_idx]) * \
-                        (1 / self.network_conditions[server_idx])
-        
-        # 5. Queuing delay (simple model based on server load)
-        queue_delay = self.server_loads[server_idx] * processing_delay
-        
-        return uplink_delay + prop_delay + processing_delay + downlink_delay + queue_delay
-    
     def _update_server_loads(self, selected_server):
-        """Update server loads after task assignment"""
-        # Increase load for selected server
+        """Update server loads after task assignment using exponential decay for non-selected servers"""
+        # Increase load for the selected server
         self.server_loads[selected_server] = min(
             self.server_loads[selected_server] + self.current_task_size * 0.1,
             1.0
         )
-        
-        # Decrease other server loads (natural decay)
+        # Apply exponential decay to other servers
         for i in range(self.num_edge_servers):
             if i != selected_server:
-                self.server_loads[i] = max(
-                    self.server_loads[i] - 0.05,
-                    0.1
-                )
+                self.server_loads[i] = max(self.server_loads[i] * self.decay_factor, 0.1)
     
     def _update_network_conditions(self):
         """Update network conditions with random fluctuations"""
@@ -192,6 +158,7 @@ class MECEnvironment(gym.Env):
             'network_conditions': self.network_conditions.astype(np.float32),
             'server_distances': self.server_distances.astype(np.float32)
         }
+
     
 
 class DQNNetwork(nn.Module):
