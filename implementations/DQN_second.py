@@ -12,11 +12,6 @@ import os
 import json
 from datetime import datetime
 
-import numpy as np
-import torch
-import torch.nn.functional as F
-import gym
-from gym import spaces
 
 class MECEnvironment(gym.Env):
     """Enhanced MEC Environment with realistic latency components and improved server load dynamics"""
