@@ -382,7 +382,7 @@ def train_mec_sac():
     agent = SACAgent(state_size, action_size)
     
     # Training parameters
-    num_episodes = 1000
+    num_episodes = 2000
     max_steps = 100
     eval_frequency = 50
     
