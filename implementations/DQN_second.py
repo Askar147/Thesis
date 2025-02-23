@@ -14,24 +14,21 @@ from datetime import datetime
 
 
 class MECEnvironment(gym.Env):
-    """Enhanced MEC Environment with realistic latency components"""
-    def __init__(self, num_edge_servers=3, continuous_action=False):
+    def __init__(self, num_edge_servers=10, continuous_action=False):
         super().__init__()
         
         self.num_edge_servers = num_edge_servers
         self.continuous_action = continuous_action
         
-        # Action space definition based on algorithm type
+        # Action space unchanged
         if continuous_action:
-            # For SAC: Continuous values between 0 and 1 for each server
             self.action_space = spaces.Box(
                 low=0, high=1, shape=(num_edge_servers,), dtype=np.float32
             )
         else:
-            # For DQN/DDQN: Discrete server selection
             self.action_space = spaces.Discrete(num_edge_servers)
         
-        # Enhanced observation space with more state information
+        # Observation space unchanged
         self.observation_space = spaces.Dict({
             'task_size': spaces.Box(
                 low=0,
@@ -61,58 +58,85 @@ class MECEnvironment(gym.Env):
             )
         })
         
-        # Initialize server characteristics
-        self.server_speeds = np.random.uniform(0.5, 1.0, num_edge_servers)  # Processing capability
-        self.server_distances = np.random.uniform(0.1, 1.0, num_edge_servers)  # Normalized distances
-        self.bandwidth_up = np.random.uniform(0.5, 1.0, num_edge_servers)  # Uplink bandwidth
-        self.bandwidth_down = np.random.uniform(0.6, 1.0, num_edge_servers)  # Downlink bandwidth
+        # Initialize with better ranges
+        self.server_speeds = np.random.uniform(0.7, 1.0, num_edge_servers)  # Higher minimum speed
+        self.server_distances = np.random.uniform(0.1, 0.8, num_edge_servers)  # Lower maximum distance
+        self.bandwidth_up = np.random.uniform(0.6, 1.0, num_edge_servers)  # Better minimum bandwidth
+        self.bandwidth_down = np.random.uniform(0.7, 1.0, num_edge_servers)  # Better minimum bandwidth
         self.reset()
-        
+    
     def reset(self):
-        """Reset environment state"""
-        self.current_task_size = np.random.uniform(0.2, 1.0)
-        self.server_loads = np.random.uniform(0.1, 0.4, self.num_edge_servers)  # Initial load
-        self.network_conditions = np.random.uniform(0.7, 1.0, self.num_edge_servers)  # Network quality
-        
+        self.current_task_size = np.random.uniform(0.2, 0.8)  # Smaller maximum task size
+        self.server_loads = np.random.uniform(0.1, 0.3, self.num_edge_servers)  # Lower initial loads
+        self.network_conditions = np.random.uniform(0.8, 1.0, self.num_edge_servers)  # Better network conditions
         return self._get_observation()
     
+    def _calculate_total_latency(self, server_idx):
+        # 1. Uplink transmission delay (reduced impact)
+        uplink_delay = (self.current_task_size / self.bandwidth_up[server_idx]) * \
+                      (1 / self.network_conditions[server_idx]) * 0.8  # Scale down
+        
+        # 2. Propagation delay (reduced impact)
+        prop_delay = self.server_distances[server_idx] * 0.05  # Reduced impact
+        
+        # 3. Processing delay (main component)
+        effective_speed = self.server_speeds[server_idx] * (1 - self.server_loads[server_idx])
+        processing_delay = self.current_task_size / max(effective_speed, 0.1)
+        
+        # 4. Downlink delay (reduced impact)
+        result_size = self.current_task_size * 0.05  # Smaller result size
+        downlink_delay = (result_size / self.bandwidth_down[server_idx]) * \
+                        (1 / self.network_conditions[server_idx]) * 0.8  # Scale down
+        
+        # 5. Queuing delay (more impactful)
+        queue_delay = self.server_loads[server_idx] * processing_delay * 1.2
+        
+        total_delay = uplink_delay + prop_delay + processing_delay + downlink_delay + queue_delay
+        return total_delay
+    
     def step(self, action):
-        """Execute action and return new state"""
         if self.continuous_action:
-            # Convert continuous action to server selection using softmax
             action_probs = F.softmax(torch.FloatTensor(action), dim=0).numpy()
             selected_server = np.argmax(action_probs)
         else:
             selected_server = action
         
-        # Calculate total latency components
+        # Calculate latency
         total_latency = self._calculate_total_latency(selected_server)
         
-        # Update server loads based on the new task
+        # Calculate reward with better scaling
+        normalized_latency = total_latency / 5.0  # Scale down latency
+        base_reward = -np.tanh(normalized_latency)  # Base reward between -1 and 1
+        
+        # Add bonus for good choices
+        available_speeds = self.server_speeds * (1 - self.server_loads)
+        if selected_server == np.argmax(available_speeds):
+            base_reward += 0.3  # Bonus for optimal choice
+        elif available_speeds[selected_server] >= np.percentile(available_speeds, 75):
+            base_reward += 0.1  # Smaller bonus for good choice
+        
+        # Penalize very high loads
+        if self.server_loads[selected_server] > 0.8:
+            base_reward -= 0.2
+        
+        # Update environment
         self._update_server_loads(selected_server)
-        
-        # Update network conditions with some randomness
         self._update_network_conditions()
+        self.current_task_size = np.random.uniform(0.2, 0.8)
         
-        # Generate new task and get new observation
-        self.current_task_size = np.random.uniform(0.2, 1.0)
-        new_observation = self._get_observation()
+        # Get new observation
+        observation = self._get_observation()
         
-        # Calculate reward (negative normalized latency)
-        reward = -np.tanh(total_latency / 10.0)
-        
-        # Episode never ends
-        done = False
-        
-        # Additional info for monitoring
+        # Additional info
         info = {
             'selected_server': selected_server,
             'server_load': self.server_loads[selected_server],
             'network_quality': self.network_conditions[selected_server],
-            'total_latency': total_latency
+            'total_latency': total_latency,
+            'effective_speed': available_speeds[selected_server]
         }
         
-        return new_observation, reward, done, info
+        return observation, base_reward, False, info
     
     def _calculate_total_latency(self, server_idx):
         """Calculate total latency including all components"""
@@ -180,18 +204,24 @@ class DQNNetwork(nn.Module):
         # Verify state size
         print(f"Network initialized with state_size: {state_size}")
         
-        # Network layers
-        self.fc1 = nn.Linear(state_size, 256)  # Increased from 64 to handle more features
-        self.fc2 = nn.Linear(256, 256)
-        self.fc3 = nn.Linear(256, 128)
-        self.fc4 = nn.Linear(128, action_size)
+        # Network layers with better scaling
+        self.fc1 = nn.Linear(state_size, 512)
+        self.fc2 = nn.Linear(512, 512)
+        self.fc3 = nn.Linear(512, 256)
+        self.fc4 = nn.Linear(256, action_size)
         
         # Layer normalization
-        self.ln1 = nn.LayerNorm(256)
-        self.ln2 = nn.LayerNorm(256)
-        self.ln3 = nn.LayerNorm(128)
+        self.ln1 = nn.LayerNorm(512)
+        self.ln2 = nn.LayerNorm(512)
+        self.ln3 = nn.LayerNorm(256)
         
-        self.dropout = nn.Dropout(0.1)
+        self.dropout = nn.Dropout(0.2)  # Increased dropout
+        
+        # Initialize weights
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                nn.init.orthogonal_(m.weight)
+                nn.init.constant_(m.bias, 0)
         
         # Move to device
         self.to(device)
@@ -344,15 +374,15 @@ class DQNAgent:
         print(f"Using device: {self.device}")
         
         # DQN hyperparameters
-        self.gamma = 0.99  # discount factor
+        self.gamma = 0.995  # discount factor
         self.epsilon = 1.0  # starting exploration rate
         self.epsilon_min = 0.05  # minimum exploration rate
         self.epsilon_decay_steps = 1500  # number of episodes to reach epsilon_min
         self.current_episode = 0  # track current episode for linear decay
         
-        self.learning_rate = 0.001
-        self.batch_size = 128
-        self.min_replay_size = 1000
+        self.learning_rate = 0.0005
+        self.batch_size = 256
+        self.min_replay_size = 5000
         
         # Create Q-Networks (current and target)
         self.q_network = DQNNetwork(state_size, action_size, self.device)
