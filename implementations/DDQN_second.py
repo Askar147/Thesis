@@ -63,7 +63,7 @@ class DDQNAgent:
         self.gamma = 0.99
         self.epsilon = 1.0
         self.epsilon_min = 0.05
-        self.epsilon_decay_steps = 800
+        self.epsilon_decay_steps = 1500
         self.current_episode = 0
 
         self.learning_rate = 0.0005
@@ -153,7 +153,7 @@ def train_mec_ddqn():
     print(f"State size: {state_size}, Action size: {action_size}")
     agent = DDQNAgent(state_size, action_size)
 
-    num_episodes = 1000
+    num_episodes = 1800
     max_steps = 100
     metrics = {'rewards': [], 'losses': [], 'epsilons': []}
 
