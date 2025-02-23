@@ -61,7 +61,7 @@ class MECEnvironment(gym.Env):
         latency = self._calculate_latency(selected_server)
         
         # Normalize reward between -1 and 0
-        reward = -latency / 100.0
+        reward = -np.tanh(latency / 10.0)
         
         # Generate new task for next state
         self.current_task_size = np.random.uniform(0.2, 1.0)
@@ -179,9 +179,11 @@ class SACAgent:
         self.target_q1 = SoftQNetwork(state_dim, action_dim, hidden_dim).to(self.device)
         self.target_q2 = SoftQNetwork(state_dim, action_dim, hidden_dim).to(self.device)
         
-        # Higher initial temperature for better exploration
-        self.target_entropy = -action_dim/4  # Less negative for more exploration
-        self.log_alpha = torch.zeros(1, requires_grad=True, device=self.device) + np.log(0.5)
+        # Much higher target entropy to maintain exploration
+        self.target_entropy = -action_dim/8  # Even less negative
+        # Initialize log_alpha with higher value
+        initial_alpha = 2.0
+        self.log_alpha = torch.log(torch.ones(1) * initial_alpha).to(self.device).requires_grad_(True)
         
         # Optimizers with lower learning rates
         self.policy_optimizer = optim.Adam(self.policy.parameters(), lr=1e-4)
@@ -217,70 +219,75 @@ class SACAgent:
         return action.cpu().numpy()[0]
     
     def train(self):
-        if len(self.replay_buffer) < self.min_training_size:
-            return None, None, None, None
+            if len(self.replay_buffer) < self.min_training_size:
+                return None, None, None, None
+                
+            # Sample batch
+            state_batch, action_batch, reward_batch, next_state_batch, done_batch = \
+                self.replay_buffer.sample(self.batch_size)
             
-        # Sample batch
-        state_batch, action_batch, reward_batch, next_state_batch, done_batch = \
-            self.replay_buffer.sample(self.batch_size)
-        
-        # Move to device
-        state_batch = state_batch.to(self.device)
-        action_batch = action_batch.to(self.device)
-        reward_batch = reward_batch.to(self.device)
-        next_state_batch = next_state_batch.to(self.device)
-        done_batch = done_batch.to(self.device)
-        
-        alpha = self.log_alpha.exp()
-        
-        # Q-function update with gradient clipping
-        with torch.no_grad():
-            next_action, next_log_pi, _ = self.policy.sample(next_state_batch)
-            target_q1 = self.target_q1(next_state_batch, next_action)
-            target_q2 = self.target_q2(next_state_batch, next_action)
-            target_q = torch.min(target_q1, target_q2) - alpha * next_log_pi
-            target_q = reward_batch + (1 - done_batch) * self.gamma * target_q
+            # Move to device
+            state_batch = state_batch.to(self.device)
+            action_batch = action_batch.to(self.device)
+            reward_batch = reward_batch.to(self.device)
+            next_state_batch = next_state_batch.to(self.device)
+            done_batch = done_batch.to(self.device)
             
-        # Q1 update with Huber loss
-        current_q1 = self.q1(state_batch, action_batch)
-        q1_loss = F.huber_loss(current_q1, target_q)
-        self.q1_optimizer.zero_grad()
-        q1_loss.backward()
-        torch.nn.utils.clip_grad_norm_(self.q1.parameters(), self.max_grad_norm)
-        self.q1_optimizer.step()
-        
-        # Q2 update with Huber loss
-        current_q2 = self.q2(state_batch, action_batch)
-        q2_loss = F.huber_loss(current_q2, target_q)
-        self.q2_optimizer.zero_grad()
-        q2_loss.backward()
-        torch.nn.utils.clip_grad_norm_(self.q2.parameters(), self.max_grad_norm)
-        self.q2_optimizer.step()
-        
-        # Policy update
-        new_actions, log_pi, _ = self.policy.sample(state_batch)
-        q1_new = self.q1(state_batch, new_actions)
-        q2_new = self.q2(state_batch, new_actions)
-        q_new = torch.min(q1_new, q2_new)
-        
-        policy_loss = (alpha * log_pi - q_new).mean()
-        self.policy_optimizer.zero_grad()
-        policy_loss.backward()
-        torch.nn.utils.clip_grad_norm_(self.policy.parameters(), self.max_grad_norm)
-        self.policy_optimizer.step()
-        
-        # Temperature update with clipped values
-        alpha_loss = -(self.log_alpha * (log_pi.detach() + self.target_entropy)).mean()
-        self.alpha_optimizer.zero_grad()
-        alpha_loss.backward()
-        torch.nn.utils.clip_grad_norm_([self.log_alpha], 0.1)  # Smaller clip for alpha
-        self.alpha_optimizer.step()
-        
-        # Soft update target networks
-        self._soft_update_target_network(self.q1, self.target_q1)
-        self._soft_update_target_network(self.q2, self.target_q2)
-        
-        return q1_loss.item(), q2_loss.item(), policy_loss.item(), alpha_loss.item()
+            alpha = self.log_alpha.exp()
+            
+            # Q-function update with gradient clipping
+            with torch.no_grad():
+                next_action, next_log_pi, _ = self.policy.sample(next_state_batch)
+                target_q1 = self.target_q1(next_state_batch, next_action)
+                target_q2 = self.target_q2(next_state_batch, next_action)
+                target_q = torch.min(target_q1, target_q2) - alpha * next_log_pi
+                target_q = reward_batch + (1 - done_batch) * self.gamma * target_q
+                
+            # Q1 update with Huber loss
+            current_q1 = self.q1(state_batch, action_batch)
+            q1_loss = F.huber_loss(current_q1, target_q)
+            self.q1_optimizer.zero_grad()
+            q1_loss.backward()
+            torch.nn.utils.clip_grad_norm_(self.q1.parameters(), self.max_grad_norm)
+            self.q1_optimizer.step()
+            
+            # Q2 update with Huber loss
+            current_q2 = self.q2(state_batch, action_batch)
+            q2_loss = F.huber_loss(current_q2, target_q)
+            self.q2_optimizer.zero_grad()
+            q2_loss.backward()
+            torch.nn.utils.clip_grad_norm_(self.q2.parameters(), self.max_grad_norm)
+            self.q2_optimizer.step()
+            
+            # Policy update
+            new_actions, log_pi, _ = self.policy.sample(state_batch)
+            q1_new = self.q1(state_batch, new_actions)
+            q2_new = self.q2(state_batch, new_actions)
+            q_new = torch.min(q1_new, q2_new)
+            
+            policy_loss = (alpha * log_pi - q_new).mean()
+            self.policy_optimizer.zero_grad()
+            policy_loss.backward()
+            torch.nn.utils.clip_grad_norm_(self.policy.parameters(), self.max_grad_norm)
+            self.policy_optimizer.step()
+            
+            # Temperature update with minimum value and smoother updates
+            alpha = torch.clamp(self.log_alpha.exp(), min=0.05, max=5.0)  # Clamp alpha to reasonable range
+            alpha_loss = -(alpha * (log_pi.detach() + self.target_entropy)).mean()
+            self.alpha_optimizer.zero_grad()
+            alpha_loss.backward()
+            torch.nn.utils.clip_grad_norm_([self.log_alpha], 0.05)  # Smaller clip for smoother updates
+            self.alpha_optimizer.step()
+            
+            # Ensure alpha doesn't go too low
+            with torch.no_grad():
+                self.log_alpha.data = torch.clamp(self.log_alpha.data, min=np.log(0.05), max=np.log(5.0))
+            
+            # Soft update target networks
+            self._soft_update_target_network(self.q1, self.target_q1)
+            self._soft_update_target_network(self.q2, self.target_q2)
+            
+            return q1_loss.item(), q2_loss.item(), policy_loss.item(), alpha_loss.item()
     
     def _soft_update_target_network(self, source, target):
         for target_param, source_param in zip(target.parameters(), source.parameters()):
@@ -297,7 +304,7 @@ def train_mec_sac():
     
     agent = SACAgent(state_size, action_size)
     
-    num_episodes = 3000
+    num_episodes = 1000
     max_steps = 100
     eval_frequency = 50
     
