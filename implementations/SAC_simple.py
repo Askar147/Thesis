@@ -170,29 +170,40 @@ class SACAgent:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print(f"Using device: {self.device}")
         
-        self.policy = GaussianPolicy(state_dim, action_dim).to(self.device)
-        self.q1 = SoftQNetwork(state_dim, action_dim).to(self.device)
-        self.q2 = SoftQNetwork(state_dim, action_dim).to(self.device)
-        self.target_q1 = SoftQNetwork(state_dim, action_dim).to(self.device)
-        self.target_q2 = SoftQNetwork(state_dim, action_dim).to(self.device)
+        # Larger networks for better representation
+        hidden_dim = 256  # Increased from 64
         
+        self.policy = GaussianPolicy(state_dim, action_dim, hidden_dim).to(self.device)
+        self.q1 = SoftQNetwork(state_dim, action_dim, hidden_dim).to(self.device)
+        self.q2 = SoftQNetwork(state_dim, action_dim, hidden_dim).to(self.device)
+        self.target_q1 = SoftQNetwork(state_dim, action_dim, hidden_dim).to(self.device)
+        self.target_q2 = SoftQNetwork(state_dim, action_dim, hidden_dim).to(self.device)
+        
+        # Higher initial temperature for better exploration
+        self.target_entropy = -action_dim/4  # Less negative for more exploration
+        self.log_alpha = torch.zeros(1, requires_grad=True, device=self.device) + np.log(0.5)
+        
+        # Optimizers with lower learning rates
+        self.policy_optimizer = optim.Adam(self.policy.parameters(), lr=1e-4)
+        self.q1_optimizer = optim.Adam(self.q1.parameters(), lr=1e-4)
+        self.q2_optimizer = optim.Adam(self.q2.parameters(), lr=1e-4)
+        self.alpha_optimizer = optim.Adam([self.log_alpha], lr=1e-4)
+        
+        # Target network initialization
         self.target_q1.load_state_dict(self.q1.state_dict())
         self.target_q2.load_state_dict(self.q2.state_dict())
         
-        self.policy_optimizer = optim.Adam(self.policy.parameters(), lr=3e-4)
-        self.q1_optimizer = optim.Adam(self.q1.parameters(), lr=3e-4)
-        self.q2_optimizer = optim.Adam(self.q2.parameters(), lr=3e-4)
+        self.replay_buffer = ReplayBuffer(1000000)  # Larger buffer
         
-        self.target_entropy = -action_dim/2
-        self.log_alpha = torch.zeros(1, requires_grad=True, device=self.device)
-        self.alpha_optimizer = optim.Adam([self.log_alpha], lr=3e-4)
-        
-        self.replay_buffer = ReplayBuffer(100000)
-        
+        # Adjusted hyperparameters
         self.gamma = 0.99
-        self.tau = 0.001  # Slower target network updates
-        self.batch_size = 256  # Larger batch size for more stable updates
-        self.min_training_size = 5000  # Wait for more samples before training
+        self.tau = 0.001  # Slower target updates
+        self.batch_size = 512  # Larger batch size
+        self.min_training_size = 10000  # More initial exploration
+        self.target_update_interval = 1  # Update targets every step
+        
+        # Gradient clipping
+        self.max_grad_norm = 1.0
         
     def select_action(self, state, evaluate=False):
         state = torch.FloatTensor(state).unsqueeze(0).to(self.device)
@@ -206,11 +217,10 @@ class SACAgent:
         return action.cpu().numpy()[0]
     
     def train(self):
-        """Train the agent using SAC"""
-        # Don't train until we have enough samples
         if len(self.replay_buffer) < self.min_training_size:
             return None, None, None, None
-        # Sample from replay buffer
+            
+        # Sample batch
         state_batch, action_batch, reward_batch, next_state_batch, done_batch = \
             self.replay_buffer.sample(self.batch_size)
         
@@ -223,26 +233,28 @@ class SACAgent:
         
         alpha = self.log_alpha.exp()
         
-        # Update Q-functions
+        # Q-function update with gradient clipping
         with torch.no_grad():
             next_action, next_log_pi, _ = self.policy.sample(next_state_batch)
             target_q1 = self.target_q1(next_state_batch, next_action)
             target_q2 = self.target_q2(next_state_batch, next_action)
             target_q = torch.min(target_q1, target_q2) - alpha * next_log_pi
             target_q = reward_batch + (1 - done_batch) * self.gamma * target_q
-        
-        # Q1 update
+            
+        # Q1 update with Huber loss
         current_q1 = self.q1(state_batch, action_batch)
-        q1_loss = F.mse_loss(current_q1, target_q)
+        q1_loss = F.huber_loss(current_q1, target_q)
         self.q1_optimizer.zero_grad()
         q1_loss.backward()
+        torch.nn.utils.clip_grad_norm_(self.q1.parameters(), self.max_grad_norm)
         self.q1_optimizer.step()
         
-        # Q2 update
+        # Q2 update with Huber loss
         current_q2 = self.q2(state_batch, action_batch)
-        q2_loss = F.mse_loss(current_q2, target_q)
+        q2_loss = F.huber_loss(current_q2, target_q)
         self.q2_optimizer.zero_grad()
         q2_loss.backward()
+        torch.nn.utils.clip_grad_norm_(self.q2.parameters(), self.max_grad_norm)
         self.q2_optimizer.step()
         
         # Policy update
@@ -254,12 +266,14 @@ class SACAgent:
         policy_loss = (alpha * log_pi - q_new).mean()
         self.policy_optimizer.zero_grad()
         policy_loss.backward()
+        torch.nn.utils.clip_grad_norm_(self.policy.parameters(), self.max_grad_norm)
         self.policy_optimizer.step()
         
-        # Update temperature
-        alpha_loss = -(self.log_alpha * (log_pi + self.target_entropy).detach()).mean()
+        # Temperature update with clipped values
+        alpha_loss = -(self.log_alpha * (log_pi.detach() + self.target_entropy)).mean()
         self.alpha_optimizer.zero_grad()
         alpha_loss.backward()
+        torch.nn.utils.clip_grad_norm_([self.log_alpha], 0.1)  # Smaller clip for alpha
         self.alpha_optimizer.step()
         
         # Soft update target networks
