@@ -1,0 +1,138 @@
+GNN_second.py
+
+Episode 0/1000, Average Reward: -28.61, Average Latency: 1.73, Epsilon: 1.000
+Episode 50/1000, Average Reward: -23.84, Average Latency: 1.70, Epsilon: 0.050
+Episode 100/1000, Average Reward: -15.31, Average Latency: 1.56, Epsilon: 0.050
+Episode 150/1000, Average Reward: -11.51, Average Latency: 1.61, Epsilon: 0.050
+Episode 200/1000, Average Reward: -7.38, Average Latency: 1.58, Epsilon: 0.050
+Episode 250/1000, Average Reward: -10.51, Average Latency: 1.61, Epsilon: 0.050
+Episode 300/1000, Average Reward: -12.91, Average Latency: 1.62, Epsilon: 0.050
+Episode 350/1000, Average Reward: -13.41, Average Latency: 1.61, Epsilon: 0.050
+Episode 400/1000, Average Reward: -13.42, Average Latency: 1.58, Epsilon: 0.050
+Episode 450/1000, Average Reward: -13.91, Average Latency: 1.60, Epsilon: 0.050
+Episode 500/1000, Average Reward: -13.29, Average Latency: 1.60, Epsilon: 0.050
+Episode 550/1000, Average Reward: -13.10, Average Latency: 1.58, Epsilon: 0.050
+Episode 600/1000, Average Reward: -13.66, Average Latency: 1.58, Epsilon: 0.050
+Episode 650/1000, Average Reward: -11.97, Average Latency: 1.60, Epsilon: 0.050
+Episode 700/1000, Average Reward: -11.32, Average Latency: 1.59, Epsilon: 0.050
+Episode 750/1000, Average Reward: -10.14, Average Latency: 1.59, Epsilon: 0.050
+Episode 800/1000, Average Reward: -8.46, Average Latency: 1.57, Epsilon: 0.050
+Episode 850/1000, Average Reward: -9.83, Average Latency: 1.59, Epsilon: 0.050
+Episode 900/1000, Average Reward: -11.15, Average Latency: 1.61, Epsilon: 0.050
+Episode 950/1000, Average Reward: -9.69, Average Latency: 1.59, Epsilon: 0.050
+
+
+Transformer_second
+
+State size: 41, Action size: 10
+Episode 0/2000, Average Reward: -25.22, Average Latency: 1.64, Epsilon: 0.998
+Episode 50/2000, Average Reward: -26.86, Average Latency: 1.66, Epsilon: 0.903
+Episode 100/2000, Average Reward: -25.90, Average Latency: 1.62, Epsilon: 0.817
+Episode 150/2000, Average Reward: -26.28, Average Latency: 1.64, Epsilon: 0.739
+Episode 200/2000, Average Reward: -26.08, Average Latency: 1.63, Epsilon: 0.669
+Episode 250/2000, Average Reward: -26.20, Average Latency: 1.65, Epsilon: 0.605
+Episode 300/2000, Average Reward: -26.43, Average Latency: 1.66, Epsilon: 0.547
+Episode 350/2000, Average Reward: -26.11, Average Latency: 1.62, Epsilon: 0.495
+Episode 400/2000, Average Reward: -26.30, Average Latency: 1.64, Epsilon: 0.448
+Episode 450/2000, Average Reward: -26.39, Average Latency: 1.64, Epsilon: 0.405
+Episode 500/2000, Average Reward: -26.83, Average Latency: 1.66, Epsilon: 0.367
+Episode 550/2000, Average Reward: -26.40, Average Latency: 1.65, Epsilon: 0.332
+Episode 600/2000, Average Reward: -26.50, Average Latency: 1.64, Epsilon: 0.300
+Episode 650/2000, Average Reward: -26.44, Average Latency: 1.64, Epsilon: 0.272
+Episode 700/2000, Average Reward: -27.25, Average Latency: 1.66, Epsilon: 0.246
+Episode 750/2000, Average Reward: -27.01, Average Latency: 1.66, Epsilon: 0.222
+Episode 800/2000, Average Reward: -26.92, Average Latency: 1.66, Epsilon: 0.201
+Episode 850/2000, Average Reward: -26.83, Average Latency: 1.65, Epsilon: 0.182
+Episode 900/2000, Average Reward: -27.12, Average Latency: 1.65, Epsilon: 0.165
+Episode 950/2000, Average Reward: -26.85, Average Latency: 1.65, Epsilon: 0.149
+Episode 1000/2000, Average Reward: -27.17, Average Latency: 1.68, Epsilon: 0.135
+Episode 1050/2000, Average Reward: -27.60, Average Latency: 1.69, Epsilon: 0.122
+Episode 1100/2000, Average Reward: -28.12, Average Latency: 1.71, Epsilon: 0.110
+Episode 1150/2000, Average Reward: -28.18, Average Latency: 1.71, Epsilon: 0.100
+Episode 1200/2000, Average Reward: -27.57, Average Latency: 1.67, Epsilon: 0.090
+Episode 1250/2000, Average Reward: -28.02, Average Latency: 1.70, Epsilon: 0.082
+Episode 1300/2000, Average Reward: -27.83, Average Latency: 1.70, Epsilon: 0.074
+Episode 1350/2000, Average Reward: -27.52, Average Latency: 1.67, Epsilon: 0.067
+Episode 1400/2000, Average Reward: -28.32, Average Latency: 1.72, Epsilon: 0.061
+Episode 1450/2000, Average Reward: -28.10, Average Latency: 1.69, Epsilon: 0.055
+Episode 1500/2000, Average Reward: -27.59, Average Latency: 1.68, Epsilon: 0.050
+Episode 1550/2000, Average Reward: -28.39, Average Latency: 1.70, Epsilon: 0.050
+Episode 1600/2000, Average Reward: -28.32, Average Latency: 1.71, Epsilon: 0.050
+Episode 1650/2000, Average Reward: -28.36, Average Latency: 1.71, Epsilon: 0.050
+Episode 1700/2000, Average Reward: -28.36, Average Latency: 1.71, Epsilon: 0.050
+Episode 1750/2000, Average Reward: -28.24, Average Latency: 1.71, Epsilon: 0.050
+Episode 1800/2000, Average Reward: -28.21, Average Latency: 1.71, Epsilon: 0.050
+Episode 1850/2000, Average Reward: -28.78, Average Latency: 1.72, Epsilon: 0.050
+Episode 1900/2000, Average Reward: -28.57, Average Latency: 1.74, Epsilon: 0.050
+Episode 1950/2000, Average Reward: -27.93, Average Latency: 1.67, Epsilon: 0.050
+
+
+
+VAE_second
+State size: 41
+Episode 0/2000, Average Reward: -24.92, Average Latency: 1.62, Epsilon: 0.995
+Episode 50/2000, Average Reward: -24.63, Average Latency: 1.62, Epsilon: 0.774
+Episode 100/2000, Average Reward: -22.08, Average Latency: 1.60, Epsilon: 0.603
+Episode 150/2000, Average Reward: -20.25, Average Latency: 1.59, Epsilon: 0.469
+Episode 200/2000, Average Reward: -19.05, Average Latency: 1.60, Epsilon: 0.365
+Episode 250/2000, Average Reward: -19.54, Average Latency: 1.64, Epsilon: 0.284
+Episode 300/2000, Average Reward: -18.48, Average Latency: 1.61, Epsilon: 0.221
+Episode 350/2000, Average Reward: -19.52, Average Latency: 1.63, Epsilon: 0.172
+Episode 400/2000, Average Reward: -23.27, Average Latency: 1.71, Epsilon: 0.134
+Episode 450/2000, Average Reward: -26.62, Average Latency: 1.78, Epsilon: 0.104
+Episode 500/2000, Average Reward: -28.79, Average Latency: 1.90, Epsilon: 0.081
+Episode 550/2000, Average Reward: -29.29, Average Latency: 1.91, Epsilon: 0.063
+Episode 600/2000, Average Reward: -29.18, Average Latency: 1.89, Epsilon: 0.050
+Episode 650/2000, Average Reward: -30.71, Average Latency: 1.96, Epsilon: 0.050
+Episode 700/2000, Average Reward: -30.36, Average Latency: 1.91, Epsilon: 0.050
+Episode 750/2000, Average Reward: -31.52, Average Latency: 1.97, Epsilon: 0.050
+Episode 800/2000, Average Reward: -32.43, Average Latency: 2.00, Epsilon: 0.050
+Episode 850/2000, Average Reward: -34.17, Average Latency: 2.12, Epsilon: 0.050
+Episode 900/2000, Average Reward: -32.46, Average Latency: 1.97, Epsilon: 0.050
+Episode 950/2000, Average Reward: -32.74, Average Latency: 2.00, Epsilon: 0.050
+Episode 1000/2000, Average Reward: -33.06, Average Latency: 2.00, Epsilon: 0.050
+Episode 1050/2000, Average Reward: -32.73, Average Latency: 1.97, Epsilon: 0.050
+Episode 1100/2000, Average Reward: -32.79, Average Latency: 1.97, Epsilon: 0.050
+Episode 1150/2000, Average Reward: -34.18, Average Latency: 2.07, Epsilon: 0.050
+Episode 1200/2000, Average Reward: -33.25, Average Latency: 1.96, Epsilon: 0.050
+Episode 1250/2000, Average Reward: -32.68, Average Latency: 1.93, Epsilon: 0.050
+Episode 1300/2000, Average Reward: -31.86, Average Latency: 1.87, Epsilon: 0.050
+Episode 1350/2000, Average Reward: -32.97, Average Latency: 1.92, Epsilon: 0.050
+Episode 1400/2000, Average Reward: -32.33, Average Latency: 1.90, Epsilon: 0.050
+Episode 1450/2000, Average Reward: -32.46, Average Latency: 1.91, Epsilon: 0.050
+Episode 1500/2000, Average Reward: -33.05, Average Latency: 1.97, Epsilon: 0.050
+Episode 1550/2000, Average Reward: -33.52, Average Latency: 2.00, Epsilon: 0.050
+Episode 1600/2000, Average Reward: -34.34, Average Latency: 2.03, Epsilon: 0.050
+Episode 1650/2000, Average Reward: -33.86, Average Latency: 2.04, Epsilon: 0.050
+Episode 1700/2000, Average Reward: -32.81, Average Latency: 1.94, Epsilon: 0.050
+Episode 1750/2000, Average Reward: -33.71, Average Latency: 2.04, Epsilon: 0.050
+Episode 1800/2000, Average Reward: -32.66, Average Latency: 1.93, Epsilon: 0.050
+Episode 1850/2000, Average Reward: -33.16, Average Latency: 1.98, Epsilon: 0.050
+Episode 1900/2000, Average Reward: -33.16, Average Latency: 1.99, Epsilon: 0.050
+Episode 1950/2000, Average Reward: -33.24, Average Latency: 1.99, Epsilon: 0.050
+
+
+
+Hybrid_second.py
+
+State size: 41
+Episode 0/1000, Average Reward: -27.31, Average Latency: 1.72, Epsilon: 1.000
+Episode 50/1000, Average Reward: -26.48, Average Latency: 1.67, Epsilon: 0.050
+Episode 100/1000, Average Reward: -26.53, Average Latency: 1.67, Epsilon: 0.050
+Episode 150/1000, Average Reward: -26.35, Average Latency: 1.65, Epsilon: 0.050
+Episode 200/1000, Average Reward: -26.43, Average Latency: 1.66, Epsilon: 0.050
+Episode 250/1000, Average Reward: -26.60, Average Latency: 1.66, Epsilon: 0.050
+Episode 300/1000, Average Reward: -26.32, Average Latency: 1.66, Epsilon: 0.050
+Episode 350/1000, Average Reward: -26.51, Average Latency: 1.67, Epsilon: 0.050
+Episode 400/1000, Average Reward: -26.31, Average Latency: 1.66, Epsilon: 0.050
+Episode 450/1000, Average Reward: -26.24, Average Latency: 1.66, Epsilon: 0.050
+Episode 500/1000, Average Reward: -26.41, Average Latency: 1.65, Epsilon: 0.050
+Episode 550/1000, Average Reward: -26.55, Average Latency: 1.67, Epsilon: 0.050
+Episode 600/1000, Average Reward: -26.13, Average Latency: 1.65, Epsilon: 0.050
+Episode 650/1000, Average Reward: -26.53, Average Latency: 1.67, Epsilon: 0.050
+Episode 700/1000, Average Reward: -26.68, Average Latency: 1.67, Epsilon: 0.050
+Episode 750/1000, Average Reward: -26.83, Average Latency: 1.69, Epsilon: 0.050
+Episode 800/1000, Average Reward: -26.02, Average Latency: 1.65, Epsilon: 0.050
+Episode 850/1000, Average Reward: -26.76, Average Latency: 1.67, Epsilon: 0.050
+Episode 900/1000, Average Reward: -26.56, Average Latency: 1.67, Epsilon: 0.050
+Episode 950/1000, Average Reward: -26.54, Average Latency: 1.66, Epsilon: 0.050
