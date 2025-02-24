@@ -6,6 +6,8 @@ from torch.distributions import Normal
 import numpy as np
 from collections import deque
 import random
+from DQN_second import MECEnvironment
+
 
 class PositionalEncoding(nn.Module):
     """Positional encoding for transformer"""
@@ -40,9 +42,22 @@ class TransformerComponent(nn.Module):
         self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
         
     def forward(self, x, mask=None):
-        x = self.input_projection(x)
-        x = self.pos_encoder(x)
-        return self.transformer(x, mask)
+        # x shape: [batch_size, seq_length, input_dim]
+        batch_size = x.size(0)
+        
+        # Project input to d_model dimension
+        x = self.input_projection(x)  # [batch_size, seq_length, d_model]
+        
+        # Add positional encoding
+        x = self.pos_encoder(x)  # [batch_size, seq_length, d_model]
+        
+        # Apply transformer
+        output = self.transformer(x, mask)  # [batch_size, seq_length, d_model]
+        
+        # Average over sequence length
+        output = output.mean(dim=1)  # [batch_size, d_model]
+        
+        return output
 
 class GNNComponent(nn.Module):
     """GNN for server relationships"""
@@ -143,85 +158,144 @@ class SACComponent(nn.Module):
         self.log_std_head = nn.Linear(hidden_dim, action_dim)
         
     def forward(self, state):
+        # state shape: [batch_size, state_dim]
         policy_features = self.policy(state)
         mean = self.mean_head(policy_features)
         log_std = torch.clamp(self.log_std_head(policy_features), -20, 2)
-        return mean, log_std, self.q1(state), self.q2(state)
-
+        
+        q1_out = self.q1(state)
+        q2_out = self.q2(state)
+        
+        return mean, log_std, q1_out, q2_out
 class MECHybridSystem(nn.Module):
-    """Hybrid system for MEC task offloading"""
-    def __init__(self, state_dim, action_dim, seq_length=10, hidden_dim=128, latent_dim=32):
+    def __init__(self, state_dim, action_dim, num_servers=10, seq_length=10, hidden_dim=128, latent_dim=32):
         super().__init__()
         
         self.state_dim = state_dim
         self.action_dim = action_dim
+        self.num_servers = num_servers
         self.seq_length = seq_length
+        self.hidden_dim = hidden_dim
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
         # Initialize components
-        self.transformer = TransformerComponent(state_dim)
-        self.gnn = GNNComponent(state_dim)
+        self.transformer = TransformerComponent(state_dim, hidden_dim)
+        self.gnn = GNNComponent(4)  # 4 features per server
         self.vae = VAEComponent(state_dim, hidden_dim, latent_dim)
-        self.sac = SACComponent(hidden_dim * 3, action_dim)  # 3x for concatenated features
+                # Update SAC: change input dimension from hidden_dim * 3 to hidden_dim.
+        self.sac = SACComponent(hidden_dim, action_dim)
         
-        # Fusion network
+        # Add projection layers for spatial (GNN) and VAE outputs:
+        self.spatial_proj = nn.Linear(64, hidden_dim)      # GNN output is 64-dim, project to 128.
+        self.vae_proj = nn.Linear(state_dim, hidden_dim)     # VAE output is state_dim (41), project to 128.
+        
+        # Fusion network remains the same (combining three 128-dim vectors -> 384):
         self.fusion = nn.Sequential(
-            nn.Linear(hidden_dim * 3, hidden_dim * 2),
+            nn.Linear(hidden_dim * 3, hidden_dim * 2),  # 384 -> 256
             nn.ReLU(),
             nn.LayerNorm(hidden_dim * 2),
-            nn.Linear(hidden_dim * 2, hidden_dim)
+            nn.Linear(hidden_dim * 2, hidden_dim)         # 256 -> 128
         )
     
-    def create_graph_data(self, state_dict):
-        """Convert state dictionary to graph structure"""
-        # Create node features (servers)
-        node_features = torch.cat([
-            state_dict['server_speeds'].unsqueeze(1),
-            state_dict['server_loads'].unsqueeze(1),
-            state_dict['network_conditions'].unsqueeze(1),
-            state_dict['server_distances'].unsqueeze(1)
-        ], dim=1)
+    def _process_batch_states(self, states):
+        """Process a batch of states for GNN and VAE"""
+        if not isinstance(states, list):
+            states = [states]
+        batch_size = len(states)
         
-        # Create edges (fully connected)
-        num_servers = len(state_dict['server_speeds'])
+        # Prepare tensors for each feature
+        task_sizes = torch.stack([
+            torch.tensor(s['task_size'], dtype=torch.float32, device=self.device)
+            for s in states
+        ])  # [batch_size, 1]
+        
+        server_speeds = torch.stack([
+            torch.tensor(s['server_speeds'], dtype=torch.float32, device=self.device)
+            for s in states
+        ])  # [batch_size, num_servers]
+        
+        server_loads = torch.stack([
+            torch.tensor(s['server_loads'], dtype=torch.float32, device=self.device)
+            for s in states
+        ])  # [batch_size, num_servers]
+        
+        network_conditions = torch.stack([
+            torch.tensor(s['network_conditions'], dtype=torch.float32, device=self.device)
+            for s in states
+        ])  # [batch_size, num_servers]
+        
+        server_distances = torch.stack([
+            torch.tensor(s['server_distances'], dtype=torch.float32, device=self.device)
+            for s in states
+        ])  # [batch_size, num_servers]
+        
+        # Create node features for GNN
+        node_features = torch.stack([
+            server_speeds,
+            server_loads,
+            network_conditions,
+            server_distances
+        ], dim=2)  # [batch_size, num_servers, 4]
+        
+        # Create state tensor for VAE
+        state_tensor = torch.cat([
+            task_sizes,
+            server_speeds,
+            server_loads,
+            network_conditions,
+            server_distances
+        ], dim=1)  # [batch_size, state_dim]
+        
+        return node_features, state_tensor, batch_size
+        
+    def forward(self, state_sequence, current_states):
+        # Get batch size and ensure proper dimensions
+        batch_size = state_sequence.size(0)
+        
+        # Process temporal patterns with transformer
+        temporal_features = self.transformer(state_sequence)  # [batch_size, hidden_dim] (128)
+        
+        # Process current states
+        node_features, state_tensor, _ = self._process_batch_states(current_states)
+        
+        # Create edges (fully connected) - shared across batch
         edge_index = []
-        for i in range(num_servers):
-            for j in range(num_servers):
+        for i in range(self.num_servers):
+            for j in range(self.num_servers):
                 if i != j:
                     edge_index.append([i, j])
-        edge_index = torch.tensor(edge_index).t()
+        edge_index = torch.tensor(edge_index, dtype=torch.long, device=self.device).t()
         
-        return node_features, edge_index
-    
-    def forward(self, state_sequence, current_state):
-        # Process temporal patterns with transformer
-        temporal_features = self.transformer(state_sequence)
-        temporal_features = temporal_features.mean(1)  # Average over sequence
+        # Process each batch element through GNN
+        spatial_features_list = []
+        for i in range(batch_size):
+            batch_nodes = node_features[i]  # [num_servers, 4]
+            gnn_output = self.gnn(batch_nodes, edge_index)  # [num_servers, 64]
+            spatial_features_list.append(gnn_output.mean(0))  # [64]
         
-        # Process spatial patterns with GNN
-        node_features, edge_index = self.create_graph_data(current_state)
-        spatial_features = self.gnn(node_features, edge_index)
-        spatial_features = spatial_features.mean(0).unsqueeze(0)  # Average over nodes
+        spatial_features = torch.stack(spatial_features_list)  # [batch_size, 64]
+        # Project spatial features from 64-dim to 128-dim:
+        spatial_features = self.spatial_proj(spatial_features)  # [batch_size, hidden_dim]
         
         # Process state distribution with VAE
-        state_tensor = torch.cat([
-            current_state['task_size'],
-            current_state['server_speeds'],
-            current_state['server_loads'],
-            current_state['network_conditions'],
-            current_state['server_distances']
-        ]).unsqueeze(0)
+        vae_output, mu, logvar = self.vae(state_tensor)  # vae_output: [batch_size, state_dim] (e.g., 41)
+        # Project VAE output to 128-dim:
+        vae_output = self.vae_proj(vae_output)  # [batch_size, hidden_dim]
         
-        vae_output, mu, logvar = self.vae(state_tensor)
+        # Ensure all features have the same batch size
+        assert temporal_features.size(0) == batch_size
+        assert spatial_features.size(0) == batch_size
+        assert vae_output.size(0) == batch_size
         
-        # Combine features
+        # Combine features (now 128 + 128 + 128 = 384 dimensions)
         combined_features = torch.cat([
             temporal_features,
             spatial_features,
             vae_output
-        ], dim=1)
+        ], dim=1)  # [batch_size, hidden_dim * 3]
         
         # Fuse features
-        fused_features = self.fusion(combined_features)
+        fused_features = self.fusion(combined_features)  # [batch_size, hidden_dim] (128)
         
         # Get action distribution and Q-values from SAC
         mean, log_std, q1, q2 = self.sac(fused_features)
@@ -233,6 +307,8 @@ class MECHybridSystem(nn.Module):
             'fused_features': fused_features
         }
 
+    
+
 class HybridReplayBuffer:
     """Replay buffer for hybrid system"""
     def __init__(self, capacity, seq_length):
@@ -240,7 +316,24 @@ class HybridReplayBuffer:
         self.seq_length = seq_length
         
     def push(self, state, action, reward, next_state, done):
-        self.buffer.append((state, action, reward, next_state, done))
+        # Make a deep copy of state dictionaries to avoid reference issues
+        state_copy = {
+            'task_size': np.array(state['task_size']),
+            'server_speeds': np.array(state['server_speeds']),
+            'server_loads': np.array(state['server_loads']),
+            'network_conditions': np.array(state['network_conditions']),
+            'server_distances': np.array(state['server_distances'])
+        }
+        
+        next_state_copy = {
+            'task_size': np.array(next_state['task_size']),
+            'server_speeds': np.array(next_state['server_speeds']),
+            'server_loads': np.array(next_state['server_loads']),
+            'network_conditions': np.array(next_state['network_conditions']),
+            'server_distances': np.array(next_state['server_distances'])
+        }
+        
+        self.buffer.append((state_copy, action, reward, next_state_copy, done))
     
     def sample(self, batch_size):
         # Ensure enough samples for sequences
@@ -307,20 +400,39 @@ class MECHybridAgent:
         self.tau = 0.005
         self.batch_size = 64
         self.min_replay_size = 1000
-        self.target_entropy = -action_dim  # Target entropy for SAC
+        self.target_entropy = -action_dim
         self.epsilon = 1.0
         self.epsilon_min = 0.05
         self.epsilon_decay = 0.995
         
+    def _prepare_sequence(self, state_sequence):
+        """Convert state sequence to tensor"""
+        sequence = []
+        for state in state_sequence:
+            # Flatten dictionary state into tensor
+            state_components = [
+                state['task_size'],
+                state['server_speeds'],
+                state['server_loads'],
+                state['network_conditions'],
+                state['server_distances']
+            ]
+            # Concatenate all components into a single tensor
+            state_tensor = torch.cat([
+                torch.tensor(comp, dtype=torch.float32, device=self.device).flatten() 
+                for comp in state_components
+            ])
+            sequence.append(state_tensor)
+        return torch.stack(sequence)
+    
     def select_action(self, state, evaluate=False):
         # Add state to episode buffer
         self.episode_buffer.append(state)
-        if len(self.episode_buffer) > 10:  # Keep last 10 states
+        if len(self.episode_buffer) > 10:
             self.episode_buffer.pop(0)
         
         # Create state sequence
         if len(self.episode_buffer) < 10:
-            # Pad with initial state if needed
             padding = [self.episode_buffer[0]] * (10 - len(self.episode_buffer))
             state_sequence = padding + self.episode_buffer
         else:
@@ -328,20 +440,19 @@ class MECHybridAgent:
         
         # Convert sequence to tensor
         state_sequence_tensor = self._prepare_sequence(state_sequence)
+        state_sequence_tensor = state_sequence_tensor.unsqueeze(0)  # Add batch dimension
         
         # Epsilon-greedy exploration
         if not evaluate and random.random() < self.epsilon:
             return random.randrange(self.action_dim)
         
         with torch.no_grad():
-            # Get model outputs
             outputs = self.model(state_sequence_tensor, state)
             mean, log_std = outputs['policy']
             
             if evaluate:
                 return torch.argmax(mean).item()
             
-            # Sample action from distribution
             std = log_std.exp()
             dist = Normal(mean, std)
             action = dist.rsample()
@@ -358,30 +469,33 @@ class MECHybridAgent:
         
         state_seqs, states, actions, rewards, next_states, dones = batch
         
-        # Convert to tensors
-        state_seqs_tensor = torch.stack([self._prepare_sequence(seq) for seq in state_seqs]).to(self.device)
+        # Prepare tensors
+        state_seqs_tensor = torch.stack([
+            self._prepare_sequence(seq) for seq in state_seqs
+        ]).to(self.device)
+        
         rewards_tensor = torch.FloatTensor(rewards).to(self.device)
         actions_tensor = torch.LongTensor(actions).to(self.device)
         dones_tensor = torch.FloatTensor(dones).to(self.device)
         
         # Get current model outputs
         outputs = self.model(state_seqs_tensor, states)
+  # Use first state as current
         mean, log_std = outputs['policy']
         q1, q2 = outputs['q_values']
         mu, logvar = outputs['vae_params']
         
         # Get target model outputs for next states
         with torch.no_grad():
-            next_outputs = self.target_model(state_seqs_tensor, next_states)
+            next_outputs = self.target_model(state_seqs_tensor, next_states)  # Use first next state
             next_q1, next_q2 = next_outputs['q_values']
             next_value = torch.min(next_q1, next_q2)
             target_q = rewards_tensor.unsqueeze(1) + \
                       (1 - dones_tensor.unsqueeze(1)) * self.gamma * next_value
         
-        # Compute Q-function loss
+        # Compute losses
         q_loss = F.mse_loss(q1, target_q) + F.mse_loss(q2, target_q)
         
-        # Compute policy loss
         std = log_std.exp()
         dist = Normal(mean, std)
         action_probs = dist.rsample()
@@ -390,13 +504,11 @@ class MECHybridAgent:
         alpha = self.log_alpha.exp()
         policy_loss = (alpha * log_probs - torch.min(q1, q2)).mean()
         
-        # Compute alpha loss
         alpha_loss = -(self.log_alpha * (log_probs + self.target_entropy).detach()).mean()
         
-        # Compute VAE loss
         vae_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
         
-        # Compute total loss
+        # Total loss
         total_loss = q_loss + policy_loss + 0.1 * vae_loss
         
         # Optimize
@@ -424,24 +536,9 @@ class MECHybridAgent:
             'alpha': alpha.item()
         }
     
-    def _prepare_sequence(self, state_sequence):
-        """Convert state sequence to tensor"""
-        sequence = []
-        for state in state_sequence:
-            state_tensor = torch.FloatTensor(np.concatenate([
-                state['task_size'],
-                state['server_speeds'],
-                state['server_loads'],
-                state['network_conditions'],
-                state['server_distances']
-            ])).to(self.device)
-            sequence.append(state_tensor)
-        return torch.stack(sequence)
-    
     def _soft_update_target_network(self):
         """Soft update target network parameters"""
-        for target_param, param in zip(self.target_model.parameters(), 
-                                     self.model.parameters()):
+        for target_param, param in zip(self.target_model.parameters(), self.model.parameters()):
             target_param.data.copy_(
                 target_param.data * (1.0 - self.tau) + param.data * self.tau
             )

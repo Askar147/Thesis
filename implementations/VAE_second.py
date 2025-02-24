@@ -182,20 +182,32 @@ class MECVAEAgent:
             return q_values.max(1)[1].item()
     
     def train_vae(self, states):
-        """Train VAE on a batch of states"""
         # Forward pass
         decoded, mu, logvar = self.vae(states)
         
-        # Reconstruction loss for each component
-        recon_loss = sum(
-            F.mse_loss(decoded[key], states_target)
-            for key, states_target in decoded.items()
+        # Split the input states tensor into its components.
+        # The state order is assumed to be: task_size (1), server_speeds, server_loads,
+        # network_conditions, server_distances. Each of the latter four has length = num_servers.
+        num_servers = self.num_servers
+        task_target = states[:, :1]
+        server_speeds_target = states[:, 1:1+num_servers]
+        server_loads_target = states[:, 1+num_servers:1+2*num_servers]
+        network_conditions_target = states[:, 1+2*num_servers:1+3*num_servers]
+        server_distances_target = states[:, 1+3*num_servers:1+4*num_servers]
+        
+        # Compute reconstruction loss for each component.
+        recon_loss = (
+            F.mse_loss(decoded['task_size'], task_target) +
+            F.mse_loss(decoded['server_speeds'], server_speeds_target) +
+            F.mse_loss(decoded['server_loads'], server_loads_target) +
+            F.mse_loss(decoded['network_conditions'], network_conditions_target) +
+            F.mse_loss(decoded['server_distances'], server_distances_target)
         )
         
-        # KL divergence
+        # KL divergence loss
         kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
         
-        # Total loss
+        # Total loss (adjust coefficient if needed)
         vae_loss = recon_loss + 0.1 * kl_loss
         
         # Optimize
@@ -204,6 +216,8 @@ class MECVAEAgent:
         self.vae_optimizer.step()
         
         return vae_loss.item()
+
+
     
     def train(self):
         if len(self.replay_buffer) < self.min_replay_size:
@@ -217,10 +231,10 @@ class MECVAEAgent:
         
         # Process states
         state_batch = torch.stack([self.state_to_tensor(s) for s in batch[0]])
-        action_batch = torch.tensor(batch[1], device=self.device)
-        reward_batch = torch.tensor(batch[2], device=self.device)
+        action_batch = torch.tensor(batch[1], dtype=torch.long, device=self.device)
+        reward_batch = torch.tensor(batch[2], dtype=torch.float32, device=self.device)
         next_state_batch = torch.stack([self.state_to_tensor(s) for s in batch[3]])
-        done_batch = torch.tensor(batch[4], device=self.device)
+        done_batch = torch.tensor(batch[4], dtype=torch.float32, device=self.device)
         
         # Train VAE periodically
         if self.steps % self.vae_train_frequency == 0:
@@ -241,7 +255,7 @@ class MECVAEAgent:
         with torch.no_grad():
             target_q = self.policy_net(next_state_mu)
             target_q = reward_batch.unsqueeze(1) + \
-                      (1 - done_batch.unsqueeze(1)) * self.gamma * target_q.max(1)[0].unsqueeze(1)
+                      (1.0 - done_batch.unsqueeze(1)) * self.gamma * target_q.max(1)[0].unsqueeze(1)
         
         # Compute policy loss
         policy_loss = F.smooth_l1_loss(current_q, target_q)
@@ -253,7 +267,7 @@ class MECVAEAgent:
         self.policy_optimizer.step()
         
         # Update epsilon
-        self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
+        # self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
         
         return policy_loss.item(), vae_loss
 
@@ -275,7 +289,7 @@ def train_mec_vae():
     agent = MECVAEAgent(state_size, env.num_edge_servers)
     
     # Training parameters
-    num_episodes = 1000
+    num_episodes = 2000
     max_steps = 100
     eval_frequency = 50
     
@@ -330,6 +344,8 @@ def train_mec_vae():
             avg_reward = np.mean(metrics['rewards'][-eval_frequency:])
             metrics['avg_rewards'].append(avg_reward)
         
+        agent.epsilon = max(agent.epsilon_min, agent.epsilon * agent.epsilon_decay)
+
         # Print progress
         if episode % eval_frequency == 0:
             avg_reward = np.mean(metrics['rewards'][-eval_frequency:])
@@ -338,6 +354,9 @@ def train_mec_vae():
                   f"Average Reward: {avg_reward:.2f}, "
                   f"Average Latency: {avg_latency:.2f}, "
                   f"Epsilon: {agent.epsilon:.3f}")
+        # At the end of each episode, update epsilon once.
+        
+
     
     return agent, metrics
 

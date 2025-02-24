@@ -161,10 +161,12 @@ class MECTransformerAgent:
         self.gamma = 0.99
         self.tau = 0.005
         self.batch_size = 64
-        self.min_replay_size = 1000
+        self.min_replay_size = 1500
+        
+        # Add epsilon parameters for exploration
         self.epsilon = 1.0
         self.epsilon_min = 0.05
-        self.epsilon_decay = 0.995
+        self.epsilon_decay = 0.998
         
         # Initialize networks
         self.policy_net = MECTransformer(
@@ -189,6 +191,30 @@ class MECTransformerAgent:
         
         # Initialize episode buffer for sequence building
         self.episode_buffer = []
+
+    def forward(self, states):
+        # Project and reshape states
+        batch_size = states.size(0)
+        x = states.view(batch_size, -1, self.state_dim)
+        
+        # Project to d_model dimension and apply dropout
+        x = self.input_projection(x)
+        x = self.dropout(x)
+        
+        # Add positional encoding
+        x = self.pos_encoder(x)
+        
+        # Pass through transformer
+        x = self.transformer_encoder(x)
+        
+        # Get last sequence element for predictions
+        x = x[:, -1]
+        
+        # Get policy and value predictions
+        policy = self.policy_head(x)
+        value = self.value_head(x)
+        
+        return policy, value
         
     def select_action(self, state, evaluate=False):
         if not evaluate and random.random() < self.epsilon:
@@ -256,7 +282,7 @@ class MECTransformerAgent:
             )
         
         # Update epsilon
-        self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
+        # self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
         
         return loss.item()
 
@@ -279,7 +305,7 @@ def train_mec_transformer():
     agent = MECTransformerAgent(state_size, action_size)
     
     # Training parameters
-    num_episodes = 1000
+    num_episodes = 2000
     max_steps = 100
     eval_frequency = 50
     
@@ -344,6 +370,9 @@ def train_mec_transformer():
             avg_reward = np.mean(metrics['rewards'][-eval_frequency:])
             metrics['avg_rewards'].append(avg_reward)
         
+        agent.epsilon = max(agent.epsilon_min, agent.epsilon * agent.epsilon_decay)
+
+
         # Print progress
         if episode % eval_frequency == 0:
             avg_reward = np.mean(metrics['rewards'][-eval_frequency:])
