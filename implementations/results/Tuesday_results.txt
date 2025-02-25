@@ -1,0 +1,47 @@
+(tens_env) C:\Users\User.WINDOWS-DJBC79V\Desktop\Thesis\Thesis\implementations>python Transformer_second.py    
+C:\Users\User.WINDOWS-DJBC79V\anaconda3\envs\tens_env\Lib\site-packages\gym\spaces\box.py:127: UserWarning: WARN: Box bound precision lowered by casting to float32
+  logger.warn(f"Box bound precision lowered by casting to {self.dtype}")
+State size: 41, Action size: 10
+Episode 0/2000, Average Reward: -28.11, Average Latency: 1.69, Eval Reward: -71.64, Eval Latency: 6.22, Epsilon: 0.995, LR: 0.001000
+Episode 300/2000, Average Reward: -84.71, Average Latency: 8.01, Eval Reward: -105.07, Eval Latency: 10.22, Epsilon: 0.221, LR: 0.000000
+Episode 350/2000, Average Reward: -90.14, Average Latency: 8.72, Eval Reward: -106.15, Eval Latency: 10.69, Epsilon: 0.172, LR: 0.000000
+Episode 400/2000, Average Reward: -93.22, Average Latency: 9.05, Eval Reward: -106.63, Eval Latency: 10.75, Epsilon: 0.134, LR: 0.000000
+Episode 450/2000, Average Reward: -95.53, Average Latency: 9.28, Eval Reward: -106.68, Eval Latency: 10.59, Epsilon: 0.104, LR: 0.000000
+Episode 500/2000, Average Reward: -98.46, Average Latency: 9.69, Eval Reward: -106.50, Eval Latency: 10.59, Epsilon: 0.081, LR: 0.000000
+Early stopping at episode 500
+Final evaluation - Reward: -69.26, Latency: 5.94
+
+
+
+
+C:\Users\User.WINDOWS-DJBC79V\anaconda3\envs\tens_env\Lib\site-packages\gym\spaces\box.py:127: UserWarning: WARN: Box bound precision lowered by casting to float32
+  logger.warn(f"Box bound precision lowered by casting to {self.dtype}")
+State size: 41
+Episode 0/2000, Average Reward: -25.86, Average Latency: 1.63, Eval Reward: -84.73, Eval Latency: 8.37, Epsilon: 0.995, VAE LR: 0.001000
+Episode 50/2000, Average Reward: -24.90, Average Latency: 1.60, Eval Reward: -72.31, Eval Latency: 7.11, Epsilon: 0.774, VAE LR: 0.001000
+Episode 350/2000, Average Reward: -75.90, Average Latency: 6.84, Eval Reward: -105.06, Eval Latency: 10.24, Epsilon: 0.172, VAE LR: 0.001000
+Episode 400/2000, Average Reward: -83.31, Average Latency: 7.86, Eval Reward: -108.11, Eval Latency: 11.02, Epsilon: 0.134, VAE LR: 0.001000
+Episode 450/2000, Average Reward: -86.87, Average Latency: 8.27, Eval Reward: -108.82, Eval Latency: 11.28, Epsilon: 0.104, VAE LR: 0.001000
+Episode 500/2000, Average Reward: -84.90, Average Latency: 7.85, Eval Reward: -107.61, Eval Latency: 10.91, Epsilon: 0.081, VAE LR: 0.001000
+Episode 550/2000, Average Reward: -85.98, Average Latency: 8.05, Eval Reward: -107.60, Eval Latency: 10.99, Epsilon: 0.063, VAE LR: 0.001000
+Early stopping at episode 550
+Final evaluation - Reward: -76.79, Latency: 7.79
+
+
+(tens_env) C:\Users\User.WINDOWS-DJBC79V\Desktop\Thesis\Thesis\implementations>python Hybrid_second.py
+C:\Users\User.WINDOWS-DJBC79V\anaconda3\envs\tens_env\Lib\site-packages\gym\spaces\box.py:127: UserWarning: WARN: Box bound precision lowered by casting to float32
+  logger.warn(f"Box bound precision lowered by casting to {self.dtype}")
+State size: 41
+Episode 0/2000, Average Reward: -26.84, Average Latency: 1.60, Eval Reward: -90.81, Eval Latency: 9.00, Epsilon: 0.998, LR: 0.000300
+New best model saved with reward: -90.81
+Episode 50/2000, Average Reward: -25.81, Average Latency: 1.61, Eval Reward: -106.08, Eval Latency: 10.62, Epsilon: 0.903, LR: 0.000293
+Episode 100/2000, Average Reward: -25.90, Average Latency: 1.61, Eval Reward: -105.64, Eval Latency: 10.50, Epsilon: 0.817, LR: 0.000017
+Episode 150/2000, Average Reward: -27.22, Average Latency: 1.64, Eval Reward: -106.81, Eval Latency: 10.73, Epsilon: 0.739, LR: 0.000293
+Episode 200/2000, Average Reward: -26.98, Average Latency: 1.62, Eval Reward: -106.21, Eval Latency: 10.43, Epsilon: 0.669, LR: 0.000017
+Component weights set to: Transformer=1.001002478070699, GNN=1.0840923815104155, VAE=1.1147679302801834        
+Episode 250/2000, Average Reward: -29.98, Average Latency: 1.73, Eval Reward: -107.09, Eval Latency: 10.74, Epsilon: 0.300, LR: 0.000293
+Episode 300/2000, Average Reward: -31.89, Average Latency: 1.77, Eval Reward: -106.79, Eval Latency: 10.62, Epsilon: 0.500, LR: 0.000017
+Early stopping at episode 500
+C:\Users\User.WINDOWS-DJBC79V\Desktop\Thesis\Thesis\implementations\Hybrid_second.py:1057: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load("best_mec_hybrid.pth")
+Final evaluation - Reward: -92.52, Latency: 9.07
