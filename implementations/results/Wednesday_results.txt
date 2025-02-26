@@ -1,0 +1,297 @@
+C:\Users\User.WINDOWS-DJBC79V\Desktop\Thesis\Thesis\implementations\GNN_second.py:479: UserWarning: Using a target size (torch.Size([128, 128])) that is different to the input size (torch.Size([128, 1])). This will likely lead to incorrect results due to broadcasting. Please ensure they have the same size.
+  loss = (weights * F.smooth_l1_loss(current_q, target_q, reduction='none')).mean()
+Episode 25/1000, Train Reward: -26.67, Eval Reward: -28.03, Average Latency: 1.6750, Epsilon: 0.9982
+New best model saved with eval reward: -28.03
+Episode 50/1000, Train Reward: -25.59, Eval Reward: -28.16, Average Latency: 1.6416, Epsilon: 0.7478
+Episode 75/1000, Train Reward: -25.76, Eval Reward: -26.12, Average Latency: 1.6976, Epsilon: 0.1792
+New best model saved with eval reward: -26.12
+Episode 100/1000, Train Reward: -26.90, Eval Reward: -26.11, Average Latency: 1.7425, Epsilon: 0.0145
+New best model saved with eval reward: -26.11
+Episode 125/1000, Train Reward: -26.85, Eval Reward: -28.26, Average Latency: 1.6799, Epsilon: 0.0100
+Episode 150/1000, Train Reward: -29.10, Eval Reward: -29.33, Average Latency: 1.6874, Epsilon: 0.0100
+Episode 175/1000, Train Reward: -29.37, Eval Reward: -30.03, Average Latency: 1.7018, Epsilon: 0.0100
+Episode 200/1000, Train Reward: -28.59, Eval Reward: -29.42, Average Latency: 1.6876, Epsilon: 0.0100
+Episode 225/1000, Train Reward: -28.10, Eval Reward: -30.26, Average Latency: 1.6687, Epsilon: 0.0100
+Episode 250/1000, Train Reward: -29.00, Eval Reward: -28.67, Average Latency: 1.7004, Epsilon: 0.0100
+Episode 275/1000, Train Reward: -28.20, Eval Reward: -28.94, Average Latency: 1.6635, Epsilon: 0.0100
+Episode 300/1000, Train Reward: -28.25, Eval Reward: -28.62, Average Latency: 1.6647, Epsilon: 0.0100
+Episode 325/1000, Train Reward: -28.47, Eval Reward: -28.57, Average Latency: 1.6785, Epsilon: 0.0100
+Episode 350/1000, Train Reward: -27.70, Eval Reward: -29.58, Average Latency: 1.6407, Epsilon: 0.0100
+Episode 375/1000, Train Reward: -28.10, Eval Reward: -27.41, Average Latency: 1.6521, Epsilon: 0.0100
+Episode 400/1000, Train Reward: -28.13, Eval Reward: -28.39, Average Latency: 1.6526, Epsilon: 0.0100
+Episode 425/1000, Train Reward: -28.08, Eval Reward: -27.63, Average Latency: 1.6728, Epsilon: 0.0100
+Episode 450/1000, Train Reward: -28.51, Eval Reward: -27.69, Average Latency: 1.6784, Epsilon: 0.0100
+Episode 475/1000, Train Reward: -28.77, Eval Reward: -28.79, Average Latency: 1.7143, Epsilon: 0.0100
+Episode 500/1000, Train Reward: -28.94, Eval Reward: -28.81, Average Latency: 1.7097, Epsilon: 0.0100
+Episode 525/1000, Train Reward: -27.44, Eval Reward: -27.43, Average Latency: 1.6531, Epsilon: 0.0100
+Episode 550/1000, Train Reward: -28.57, Eval Reward: -27.65, Average Latency: 1.6974, Epsilon: 0.0100
+Episode 575/1000, Train Reward: -27.13, Eval Reward: -28.84, Average Latency: 1.6303, Epsilon: 0.0100
+Episode 600/1000, Train Reward: -28.22, Eval Reward: -27.44, Average Latency: 1.7029, Epsilon: 0.0100
+Episode 625/1000, Train Reward: -27.81, Eval Reward: -27.91, Average Latency: 1.6538, Epsilon: 0.0100
+Episode 650/1000, Train Reward: -28.28, Eval Reward: -28.56, Average Latency: 1.7008, Epsilon: 0.0100
+Episode 675/1000, Train Reward: -28.13, Eval Reward: -28.18, Average Latency: 1.6837, Epsilon: 0.0100
+Episode 700/1000, Train Reward: -27.89, Eval Reward: -26.94, Average Latency: 1.6713, Epsilon: 0.0100
+Episode 725/1000, Train Reward: -26.78, Eval Reward: -26.95, Average Latency: 1.6409, Epsilon: 0.0100
+Episode 750/1000, Train Reward: -27.42, Eval Reward: -27.78, Average Latency: 1.6620, Epsilon: 0.0100
+Episode 950/1000, Train Reward: -25.95, Eval Reward: -27.51, Average Latency: 1.6043, Epsilon: 0.0100
+Episode 975/1000, Train Reward: -26.65, Eval Reward: -27.48, Average Latency: 1.6393, Epsilon: 0.0100
+Episode 999/1000, Train Reward: -26.89, Eval Reward: -26.60, Average Latency: 1.6531, Epsilon: 0.0100
+Traceback (most recent call last):
+  File "C:\Users\User.WINDOWS-DJBC79V\Desktop\Thesis\Thesis\implementations\GNN_second.py", line 1016, in <module>
+    agent, metrics = train_improved_mec_gnn(render=True)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User.WINDOWS-DJBC79V\Desktop\Thesis\Thesis\implementations\GNN_second.py", line 682, in train_improved_mec_gnn
+    plot_metrics(metrics, num_episodes)
+  File "C:\Users\User.WINDOWS-DJBC79V\Desktop\Thesis\Thesis\implementations\GNN_second.py", line 724, in plot_metrics
+    plt.plot(range(0, len(metrics['rewards']), 25)[:len(metrics['eval_rewards'])],
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User.WINDOWS-DJBC79V\anaconda3\envs\tens_env\Lib\site-packages\matplotlib\pyplot.py", line 3794, in plot
+    return gca().plot(
+           ^^^^^^^^^^^
+  File "C:\Users\User.WINDOWS-DJBC79V\anaconda3\envs\tens_env\Lib\site-packages\matplotlib\axes\_axes.py", line 1779, in plot
+    lines = [*self._get_lines(self, *args, data=data, **kwargs)]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User.WINDOWS-DJBC79V\anaconda3\envs\tens_env\Lib\site-packages\matplotlib\axes\_base.py", line 296, in __call__
+    yield from self._plot_args(
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\User.WINDOWS-DJBC79V\anaconda3\envs\tens_env\Lib\site-packages\matplotlib\axes\_base.py", line 486, in _plot_args
+    raise ValueError(f"x and y must have same first dimension, but "
+ValueError: x and y must have same first dimension, but have shapes (40,) and (41,)
+
+
+
+
+
+
+
+
+(tens_env) C:\Users\User.WINDOWS-DJBC79V\Desktop\Thesis\Thesis\implementations>python Transformer_second.py
+C:\Users\User.WINDOWS-DJBC79V\anaconda3\envs\tens_env\Lib\site-packages\gym\spaces\box.py:127: UserWarning: WARN: Box bound precision lowered by casting to float32
+  logger.warn(f"Box bound precision lowered by casting to {self.dtype}")
+State size: 41, Action size: 10
+C:\Users\User.WINDOWS-DJBC79V\anaconda3\envs\tens_env\Lib\site-packages\torch\optim\lr_scheduler.py:224: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+Episode 0/2000 [0h 0m 3s] | Train Reward: -91.39 | Train Latency: 1.23 | Eval Reward: -101.07 | Eval Latency: 3.21 | Epsilon: 0.999 | LR: 0.000300
+New best model saved with reward: -101.07
+Episode 20/2000 [0h 0m 7s] | Train Reward: -93.56 | Train Latency: 1.18 | Eval Reward: -101.44 | Eval Latency: 3.32 | Epsilon: 0.983 | LR: 0.000300
+Episode 40/2000 [0h 0m 25s] | Train Reward: -81.09 | Train Latency: 1.20 | Eval Reward: -116.68 | Eval Latency: 3.83 | Epsilon: 0.968 | LR: 0.000300
+Episode 60/2000 [0h 0m 58s] | Train Reward: -87.61 | Train Latency: 1.19 | Eval Reward: -116.87 | Eval Latency: 3.83 | Epsilon: 0.952 | LR: 0.000300
+Episode 80/2000 [0h 1m 30s] | Train Reward: -80.66 | Train Latency: 1.17 | Eval Reward: -115.98 | Eval Latency: 3.63 | Epsilon: 0.937 | LR: 0.000300
+Episode 100/2000 [0h 2m 1s] | Train Reward: -94.73 | Train Latency: 1.24 | Eval Reward: -116.60 | Eval Latency: 3.74 | Epsilon: 0.922 | LR: 0.000300
+Episode 120/2000 [0h 2m 31s] | Train Reward: -91.93 | Train Latency: 1.23 | Eval Reward: -104.95 | Eval Latency: 2.71 | Epsilon: 0.908 | LR: 0.000300
+Episode 140/2000 [0h 3m 1s] | Train Reward: -87.64 | Train Latency: 1.18 | Eval Reward: -98.21 | Eval Latency: 2.41 | Epsilon: 0.893 | LR: 0.000300
+New best model saved with reward: -98.21
+Episode 160/2000 [0h 3m 38s] | Train Reward: -89.65 | Train Latency: 1.25 | Eval Reward: -114.58 | Eval Latency: 3.94 | Epsilon: 0.879 | LR: 0.000300
+Episode 180/2000 [0h 4m 11s] | Train Reward: -88.60 | Train Latency: 1.10 | Eval Reward: -95.46 | Eval Latency: 1.98 | Epsilon: 0.865 | LR: 0.000300
+New best model saved with reward: -95.46
+Episode 200/2000 [0h 4m 47s] | Train Reward: -90.61 | Train Latency: 1.15 | Eval Reward: -102.34 | Eval Latency: 2.68 | Epsilon: 0.851 | LR: 0.000300
+Episode 220/2000 [0h 5m 20s] | Train Reward: -95.50 | Train Latency: 1.30 | Eval Reward: -94.52 | Eval Latency: 2.28 | Epsilon: 0.838 | LR: 0.000300
+New best model saved with reward: -94.52
+Episode 240/2000 [0h 5m 53s] | Train Reward: -74.41 | Train Latency: 1.21 | Eval Reward: -95.95 | Eval Latency: 1.93 | Epsilon: 0.825 | LR: 0.000300
+Episode 260/2000 [0h 6m 29s] | Train Reward: -93.18 | Train Latency: 1.21 | Eval Reward: -91.45 | Eval Latency: 1.73 | Epsilon: 0.811 | LR: 0.000300
+New best model saved with reward: -91.45
+Episode 280/2000 [0h 7m 6s] | Train Reward: -88.38 | Train Latency: 1.22 | Eval Reward: -89.28 | Eval Latency: 1.53 | Epsilon: 0.799 | LR: 0.000300
+New best model saved with reward: -89.28
+Episode 300/2000 [0h 7m 43s] | Train Reward: -99.85 | Train Latency: 1.25 | Eval Reward: -93.64 | Eval Latency: 1.72 | Epsilon: 0.786 | LR: 0.000300
+Episode 320/2000 [0h 8m 20s] | Train Reward: -97.06 | Train Latency: 1.24 | Eval Reward: -94.51 | Eval Latency: 1.65 | Epsilon: 0.773 | LR: 0.000300
+Episode 340/2000 [0h 8m 57s] | Train Reward: -90.38 | Train Latency: 1.20 | Eval Reward: -91.57 | Eval Latency: 1.93 | Epsilon: 0.761 | LR: 0.000300
+Episode 360/2000 [0h 9m 36s] | Train Reward: -92.64 | Train Latency: 1.22 | Eval Reward: -86.39 | Eval Latency: 1.97 | Epsilon: 0.749 | LR: 0.000300
+New best model saved with reward: -86.39
+Episode 380/2000 [0h 10m 13s] | Train Reward: -79.98 | Train Latency: 1.13 | Eval Reward: -88.65 | Eval Latency: 1.72 | Epsilon: 0.737 | LR: 0.000300
+Episode 400/2000 [0h 10m 51s] | Train Reward: -100.50 | Train Latency: 1.29 | Eval Reward: -88.80 | Eval Latency: 1.43 | Epsilon: 0.725 | LR: 0.000300
+Episode 420/2000 [0h 11m 28s] | Train Reward: -88.67 | Train Latency: 1.20 | Eval Reward: -89.99 | Eval Latency: 1.57 | Epsilon: 0.714 | LR: 0.000300
+Episode 440/2000 [0h 12m 4s] | Train Reward: -91.38 | Train Latency: 1.28 | Eval Reward: -87.52 | Eval Latency: 1.35 | Epsilon: 0.703 | LR: 0.000300
+Episode 460/2000 [0h 12m 41s] | Train Reward: -79.53 | Train Latency: 1.13 | Eval Reward: -89.97 | Eval Latency: 1.28 | Epsilon: 0.691 | LR: 0.000300
+Episode 480/2000 [0h 13m 18s] | Train Reward: -84.68 | Train Latency: 1.16 | Eval Reward: -89.14 | Eval Latency: 1.30 | Epsilon: 0.680 | LR: 0.000300
+Episode 500/2000 [0h 13m 54s] | Train Reward: -88.84 | Train Latency: 1.19 | Eval Reward: -91.37 | Eval Latency: 1.80 | Epsilon: 0.670 | LR: 0.000300
+Episode 520/2000 [0h 14m 31s] | Train Reward: -90.52 | Train Latency: 1.18 | Eval Reward: -89.08 | Eval Latency: 1.27 | Epsilon: 0.659 | LR: 0.000300
+Episode 540/2000 [0h 15m 7s] | Train Reward: -89.67 | Train Latency: 1.15 | Eval Reward: -87.45 | Eval Latency: 1.34 | Epsilon: 0.649 | LR: 0.000300
+Episode 560/2000 [0h 15m 44s] | Train Reward: -82.16 | Train Latency: 1.12 | Eval Reward: -87.61 | Eval Latency: 1.21 | Epsilon: 0.638 | LR: 0.000300
+Episode 580/2000 [0h 16m 23s] | Train Reward: -87.27 | Train Latency: 1.18 | Eval Reward: -88.60 | Eval Latency: 1.24 | Epsilon: 0.628 | LR: 0.000300
+Episode 600/2000 [0h 17m 1s] | Train Reward: -93.71 | Train Latency: 1.25 | Eval Reward: -86.35 | Eval Latency: 1.21 | Epsilon: 0.618 | LR: 0.000300
+New best model saved with reward: -86.35
+Episode 620/2000 [0h 17m 38s] | Train Reward: -96.70 | Train Latency: 1.31 | Eval Reward: -87.07 | Eval Latency: 1.25 | Epsilon: 0.608 | LR: 0.000300
+Episode 640/2000 [0h 18m 16s] | Train Reward: -89.28 | Train Latency: 1.17 | Eval Reward: -87.85 | Eval Latency: 1.23 | Epsilon: 0.599 | LR: 0.000300
+Episode 660/2000 [0h 18m 55s] | Train Reward: -90.28 | Train Latency: 1.15 | Eval Reward: -89.38 | Eval Latency: 1.23 | Epsilon: 0.589 | LR: 0.000300
+Episode 680/2000 [0h 19m 35s] | Train Reward: -89.14 | Train Latency: 1.21 | Eval Reward: -88.09 | Eval Latency: 1.24 | Epsilon: 0.580 | LR: 0.000300
+Episode 700/2000 [0h 20m 15s] | Train Reward: -86.16 | Train Latency: 1.20 | Eval Reward: -89.43 | Eval Latency: 1.26 | Epsilon: 0.571 | LR: 0.000300
+Episode 720/2000 [0h 20m 54s] | Train Reward: -88.80 | Train Latency: 1.11 | Eval Reward: -88.54 | Eval Latency: 1.23 | Epsilon: 0.562 | LR: 0.000300
+Episode 740/2000 [0h 21m 31s] | Train Reward: -91.15 | Train Latency: 1.13 | Eval Reward: -87.38 | Eval Latency: 1.24 | Epsilon: 0.553 | LR: 0.000300
+Episode 760/2000 [0h 22m 10s] | Train Reward: -89.35 | Train Latency: 1.19 | Eval Reward: -89.50 | Eval Latency: 1.26 | Epsilon: 0.544 | LR: 0.000300
+Episode 780/2000 [0h 22m 50s] | Train Reward: -77.17 | Train Latency: 1.18 | Eval Reward: -87.86 | Eval Latency: 1.23 | Epsilon: 0.535 | LR: 0.000300
+Episode 800/2000 [0h 23m 28s] | Train Reward: -82.38 | Train Latency: 1.18 | Eval Reward: -87.80 | Eval Latency: 1.21 | Epsilon: 0.527 | LR: 0.000300
+Episode 820/2000 [0h 24m 7s] | Train Reward: -84.69 | Train Latency: 1.19 | Eval Reward: -89.23 | Eval Latency: 1.29 | Epsilon: 0.518 | LR: 0.000300
+Episode 840/2000 [0h 24m 48s] | Train Reward: -91.93 | Train Latency: 1.18 | Eval Reward: -88.36 | Eval Latency: 1.27 | Epsilon: 0.510 | LR: 0.000300
+Episode 860/2000 [0h 25m 28s] | Train Reward: -86.56 | Train Latency: 1.20 | Eval Reward: -89.10 | Eval Latency: 1.21 | Epsilon: 0.502 | LR: 0.000300
+Episode 880/2000 [0h 26m 6s] | Train Reward: -84.45 | Train Latency: 1.14 | Eval Reward: -87.71 | Eval Latency: 1.23 | Epsilon: 0.494 | LR: 0.000300
+Episode 900/2000 [0h 26m 46s] | Train Reward: -87.97 | Train Latency: 1.20 | Eval Reward: -87.15 | Eval Latency: 1.21 | Epsilon: 0.486 | LR: 0.000300
+Episode 920/2000 [0h 27m 25s] | Train Reward: -83.56 | Train Latency: 1.17 | Eval Reward: -87.72 | Eval Latency: 1.24 | Epsilon: 0.479 | LR: 0.000300
+Episode 940/2000 [0h 28m 6s] | Train Reward: -77.85 | Train Latency: 1.18 | Eval Reward: -89.06 | Eval Latency: 1.20 | Epsilon: 0.471 | LR: 0.000300
+Episode 960/2000 [0h 28m 46s] | Train Reward: -89.53 | Train Latency: 1.18 | Eval Reward: -87.64 | Eval Latency: 1.20 | Epsilon: 0.463 | LR: 0.000300
+Episode 980/2000 [0h 29m 26s] | Train Reward: -81.81 | Train Latency: 1.11 | Eval Reward: -86.91 | Eval Latency: 1.25 | Epsilon: 0.456 | LR: 0.000300
+Episode 1000/2000 [0h 30m 7s] | Train Reward: -94.31 | Train Latency: 1.21 | Eval Reward: -87.05 | Eval Latency: 1.24 | Epsilon: 0.449 | LR: 0.000300
+Episode 1020/2000 [0h 30m 48s] | Train Reward: -92.98 | Train Latency: 1.24 | Eval Reward: -87.73 | Eval Latency: 1.23 | Epsilon: 0.442 | LR: 0.000300
+Episode 1040/2000 [0h 31m 28s] | Train Reward: -95.28 | Train Latency: 1.28 | Eval Reward: -86.89 | Eval Latency: 1.24 | Epsilon: 0.435 | LR: 0.000300
+Episode 1060/2000 [0h 32m 7s] | Train Reward: -85.07 | Train Latency: 1.19 | Eval Reward: -87.24 | Eval Latency: 1.18 | Epsilon: 0.428 | LR: 0.000300
+Episode 1080/2000 [0h 32m 46s] | Train Reward: -96.89 | Train Latency: 1.20 | Eval Reward: -88.72 | Eval Latency: 1.28 | Epsilon: 0.421 | LR: 0.000300
+Episode 1100/2000 [0h 33m 26s] | Train Reward: -79.40 | Train Latency: 1.15 | Eval Reward: -88.44 | Eval Latency: 1.26 | Epsilon: 0.414 | LR: 0.000300
+Episode 1120/2000 [0h 34m 5s] | Train Reward: -91.86 | Train Latency: 1.20 | Eval Reward: -87.88 | Eval Latency: 1.20 | Epsilon: 0.408 | LR: 0.000300
+Episode 1140/2000 [0h 34m 45s] | Train Reward: -88.52 | Train Latency: 1.24 | Eval Reward: -87.20 | Eval Latency: 1.20 | Epsilon: 0.401 | LR: 0.000300
+Episode 1160/2000 [0h 35m 26s] | Train Reward: -97.06 | Train Latency: 1.25 | Eval Reward: -88.02 | Eval Latency: 1.20 | Epsilon: 0.395 | LR: 0.000300
+Episode 1180/2000 [0h 36m 6s] | Train Reward: -101.16 | Train Latency: 1.27 | Eval Reward: -88.05 | Eval Latency: 1.21 | Epsilon: 0.389 | LR: 0.000300
+Episode 1200/2000 [0h 36m 48s] | Train Reward: -76.32 | Train Latency: 1.11 | Eval Reward: -88.27 | Eval Latency: 1.21 | Epsilon: 0.382 | LR: 0.000300
+Episode 1220/2000 [0h 37m 27s] | Train Reward: -95.93 | Train Latency: 1.23 | Eval Reward: -86.79 | Eval Latency: 1.20 | Epsilon: 0.376 | LR: 0.000300
+Episode 1240/2000 [0h 38m 5s] | Train Reward: -90.25 | Train Latency: 1.20 | Eval Reward: -87.49 | Eval Latency: 1.21 | Epsilon: 0.370 | LR: 0.000300
+Episode 1260/2000 [0h 38m 46s] | Train Reward: -89.68 | Train Latency: 1.24 | Eval Reward: -88.90 | Eval Latency: 1.22 | Epsilon: 0.365 | LR: 0.000300
+Episode 1280/2000 [0h 39m 25s] | Train Reward: -98.58 | Train Latency: 1.25 | Eval Reward: -86.47 | Eval Latency: 1.19 | Epsilon: 0.359 | LR: 0.000300
+Episode 1300/2000 [0h 40m 7s] | Train Reward: -84.02 | Train Latency: 1.11 | Eval Reward: -88.46 | Eval Latency: 1.17 | Epsilon: 0.353 | LR: 0.000300
+Episode 1320/2000 [0h 40m 47s] | Train Reward: -84.93 | Train Latency: 1.21 | Eval Reward: -87.34 | Eval Latency: 1.19 | Epsilon: 0.347 | LR: 0.000300
+Episode 1340/2000 [0h 41m 28s] | Train Reward: -93.65 | Train Latency: 1.20 | Eval Reward: -85.69 | Eval Latency: 1.23 | Epsilon: 0.342 | LR: 0.000300
+New best model saved with reward: -85.69
+Episode 1360/2000 [0h 42m 11s] | Train Reward: -87.34 | Train Latency: 1.21 | Eval Reward: -87.69 | Eval Latency: 1.22 | Epsilon: 0.336 | LR: 0.000300
+Episode 1380/2000 [0h 42m 52s] | Train Reward: -87.73 | Train Latency: 1.15 | Eval Reward: -86.06 | Eval Latency: 1.22 | Epsilon: 0.331 | LR: 0.000300
+Episode 1400/2000 [0h 43m 34s] | Train Reward: -90.26 | Train Latency: 1.17 | Eval Reward: -87.80 | Eval Latency: 1.20 | Epsilon: 0.326 | LR: 0.000300
+Episode 1420/2000 [0h 44m 14s] | Train Reward: -90.28 | Train Latency: 1.19 | Eval Reward: -87.53 | Eval Latency: 1.19 | Epsilon: 0.321 | LR: 0.000300
+Episode 1440/2000 [0h 44m 56s] | Train Reward: -81.80 | Train Latency: 1.13 | Eval Reward: -86.55 | Eval Latency: 1.17 | Epsilon: 0.316 | LR: 0.000300
+Episode 1460/2000 [0h 45m 35s] | Train Reward: -75.35 | Train Latency: 1.12 | Eval Reward: -86.36 | Eval Latency: 1.17 | Epsilon: 0.311 | LR: 0.000300
+Episode 1480/2000 [0h 46m 15s] | Train Reward: -99.50 | Train Latency: 1.36 | Eval Reward: -87.10 | Eval Latency: 1.21 | Epsilon: 0.306 | LR: 0.000300
+Episode 1500/2000 [0h 46m 57s] | Train Reward: -79.83 | Train Latency: 1.13 | Eval Reward: -88.55 | Eval Latency: 1.22 | Epsilon: 0.301 | LR: 0.000300
+Episode 1520/2000 [0h 47m 38s] | Train Reward: -86.46 | Train Latency: 1.09 | Eval Reward: -87.67 | Eval Latency: 1.24 | Epsilon: 0.296 | LR: 0.000300
+Episode 1820/2000 [0h 57m 32s] | Train Reward: -81.40 | Train Latency: 1.15 | Eval Reward: -88.11 | Eval Latency: 1.18 | Epsilon: 0.233 | LR: 0.000300
+Episode 1820/2000 [0h 57m 32s] | Train Reward: -81.40 | Train Latency: 1.15 | Eval Reward: -88.11 | Eval Latency: 1.18 | Epsilon: 0.233 | LR: 0.000300
+Episode 1840/2000 [0h 58m 12s] | Train Reward: -84.65 | Train Latency: 1.18 | Eval Reward: -84.74 | Eval Latency: 1.19 | Epsilon: 0.229 | LR: 0.000300
+New best model saved with reward: -84.74
+Episode 1860/2000 [0h 58m 52s] | Train Reward: -84.07 | Train Latency: 1.23 | Eval Reward: -85.48 | Eval Latency: 1.19 | Epsilon: 0.226 | LR: 0.000300
+Episode 1880/2000 [0h 59m 33s] | Train Reward: -91.95 | Train Latency: 1.25 | Eval Reward: -85.03 | Eval Latency: 1.21 | Epsilon: 0.222 | LR: 0.000300
+Episode 1900/2000 [1h 0m 14s] | Train Reward: -75.28 | Train Latency: 1.14 | Eval Reward: -86.14 | Eval Latency: 1.18 | Epsilon: 0.218 | LR: 0.000300
+Episode 1920/2000 [1h 0m 56s] | Train Reward: -87.26 | Train Latency: 1.17 | Eval Reward: -85.23 | Eval Latency: 1.16 | Epsilon: 0.215 | LR: 0.000300
+Episode 1940/2000 [1h 1m 37s] | Train Reward: -91.55 | Train Latency: 1.30 | Eval Reward: -83.92 | Eval Latency: 1.18 | Epsilon: 0.212 | LR: 0.000300
+New best model saved with reward: -83.92
+Episode 1960/2000 [1h 2m 18s] | Train Reward: -90.74 | Train Latency: 1.29 | Eval Reward: -84.01 | Eval Latency: 1.19 | Epsilon: 0.208 | LR: 0.000300
+Episode 1980/2000 [1h 2m 58s] | Train Reward: -83.57 | Train Latency: 1.25 | Eval Reward: -85.65 | Eval Latency: 1.18 | Epsilon: 0.205 | LR: 0.000300
+C:\Users\User.WINDOWS-DJBC79V\Desktop\Thesis\Thesis\implementations\Transformer_second.py:514: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(path, map_location=self.device)
+Final evaluation - Reward: -85.66, Latency: 1.19
+
+
+
+
+
+(tens_env) C:\Users\User.WINDOWS-DJBC79V\Desktop\Thesis\Thesis\implementations>python VAE_second.py
+C:\Users\User.WINDOWS-DJBC79V\anaconda3\envs\tens_env\Lib\site-packages\gym\spaces\box.py:127: UserWarning: WARN: Box bound precision lowered by casting to float32
+  logger.warn(f"Box bound precision lowered by casting to {self.dtype}")
+State size: 41
+Episode 0/2000 [0h 0m 0s], Train Reward: 2.32, Train Latency: 1.42, Eval Reward: -52.34, Eval Latency: 4.50, Epsilon: 0.998, Server Diversity: 1.2/10
+New best model saved with reward: -52.34
+Episode 25/2000 [0h 0m 21s], Train Reward: 3.92, Train Latency: 1.37, Eval Reward: -53.93, Eval Latency: 4.12, Epsilon: 0.949, Server Diversity: 1.6/10
+Episode 50/2000 [0h 1m 54s], Train Reward: 2.54, Train Latency: 1.36, Eval Reward: -27.59, Eval Latency: 2.71, Epsilon: 0.903, Server Diversity: 3.0/10
+New best model saved with reward: -27.59
+Episode 75/2000 [0h 3m 32s], Train Reward: 3.18, Train Latency: 1.37, Eval Reward: -29.98, Eval Latency: 3.40, Epsilon: 0.859, Server Diversity: 4.0/10
+Episode 100/2000 [0h 5m 10s], Train Reward: 3.30, Train Latency: 1.36, Eval Reward: -49.84, Eval Latency: 3.51, Epsilon: 0.817, Server Diversity: 2.0/10
+Episode 125/2000 [0h 7m 5s], Train Reward: 3.55, Train Latency: 1.37, Eval Reward: -50.10, Eval Latency: 4.27, Epsilon: 0.777, Server Diversity: 1.0/10
+Episode 150/2000 [0h 9m 21s], Train Reward: 3.39, Train Latency: 1.35, Eval Reward: -37.36, Eval Latency: 3.28, Epsilon: 0.739, Server Diversity: 3.0/10
+Episode 175/2000 [0h 11m 38s], Train Reward: 2.45, Train Latency: 1.37, Eval Reward: -33.16, Eval Latency: 2.94, Epsilon: 0.703, Server Diversity: 3.0/10
+Episode 200/2000 [0h 13m 55s], Train Reward: 1.58, Train Latency: 1.38, Eval Reward: -55.02, Eval Latency: 4.54, Epsilon: 0.669, Server Diversity: 1.0/10
+Episode 225/2000 [0h 16m 9s], Train Reward: 2.53, Train Latency: 1.39, Eval Reward: -51.97, Eval Latency: 4.41, Epsilon: 0.636, Server Diversity: 1.0/10
+Episode 250/2000 [0h 18m 25s], Train Reward: 1.65, Train Latency: 1.41, Eval Reward: -56.19, Eval Latency: 4.70, Epsilon: 0.605, Server Diversity: 1.0/10
+Episode 275/2000 [0h 20m 40s], Train Reward: 1.38, Train Latency: 1.42, Eval Reward: -43.79, Eval Latency: 3.74, Epsilon: 0.575, Server Diversity: 2.0/10
+Episode 300/2000 [0h 22m 57s], Train Reward: 0.89, Train Latency: 1.39, Eval Reward: -48.95, Eval Latency: 4.29, Epsilon: 0.547, Server Diversity: 2.0/10
+Episode 325/2000 [0h 25m 12s], Train Reward: -1.41, Train Latency: 1.46, Eval Reward: -38.15, Eval Latency: 3.93, Epsilon: 0.521, Server Diversity: 3.0/10
+Episode 350/2000 [0h 27m 26s], Train Reward: -0.93, Train Latency: 1.47, Eval Reward: -24.85, Eval Latency: 2.97, Epsilon: 0.495, Server Diversity: 3.0/10
+New best model saved with reward: -24.85
+Episode 375/2000 [0h 29m 40s], Train Reward: 1.10, Train Latency: 1.46, Eval Reward: -43.27, Eval Latency: 3.71, Epsilon: 0.471, Server Diversity: 2.9/10
+Episode 400/2000 [0h 31m 58s], Train Reward: 0.11, Train Latency: 1.52, Eval Reward: -63.56, Eval Latency: 4.50, Epsilon: 0.448, Server Diversity: 1.0/10
+Episode 425/2000 [0h 34m 15s], Train Reward: 1.10, Train Latency: 1.53, Eval Reward: -44.16, Eval Latency: 4.01, Epsilon: 0.426, Server Diversity: 2.0/10
+Episode 450/2000 [0h 36m 31s], Train Reward: -1.83, Train Latency: 1.52, Eval Reward: -26.54, Eval Latency: 3.39, Epsilon: 0.405, Server Diversity: 3.0/10
+Episode 475/2000 [0h 38m 47s], Train Reward: 0.21, Train Latency: 1.60, Eval Reward: -35.88, Eval Latency: 3.06, Epsilon: 0.386, Server Diversity: 3.0/10
+Episode 500/2000 [0h 41m 2s], Train Reward: -1.60, Train Latency: 1.58, Eval Reward: -27.67, Eval Latency: 3.25, Epsilon: 0.367, Server Diversity: 3.0/10
+, Epsilon: 0.252, Server Diversity: 1.0/10
+, Epsilon: 0.252, Server Diversity: 1.0/10
+Episode 900/2000 [1h 10m 31s], Train Reward: -9.37, Train Latency: 2.15, Eval Reward: -52.01, Eval Latency: 4.47, Epsilon: 0.246, Server Diversity: 1.0/10
+Episode 925/2000 [1h 11m 54s], Train Reward: -13.79, Train Latency: 2.55, Eval Reward: -50.39, Eval Latency: 4.54, Epsilon: 0.240, Server Diversity: 1.0/10
+Episode 950/2000 [1h 13m 22s], Train Reward: -15.30, Train Latency: 2.46, Eval Reward: -53.03, Eval Latency: 4.85, Epsilon: 0.234, Server Diversity: 1.0/10
+Episode 975/2000 [1h 14m 48s], Train Reward: -18.71, Train Latency: 2.74, Eval Reward: -49.37, Eval Latency: 4.40, Epsilon: 0.228, Server Diversity: 1.0/10
+Episode 1000/2000 [1h 16m 13s], Train Reward: -17.13, Train Latency: 2.69, Eval Reward: -62.93, Eval Latency: 4.98, Epsilon: 0.223, Server Diversity: 1.0/10
+Episode 1025/2000 [1h 17m 34s], Train Reward: -17.53, Train Latency: 2.64, Eval Reward: -52.12, Eval Latency: 4.78, Epsilon: 0.217, Server Diversity: 1.0/10
+Episode 1050/2000 [1h 19m 1s], Train Reward: -21.18, Train Latency: 2.88, Eval Reward: -49.85, Eval Latency: 4.64, Epsilon: 0.212, Server Diversity: 1.0/10
+Episode 1075/2000 [1h 20m 29s], Train Reward: -21.03, Train Latency: 2.84, Eval Reward: -60.21, Eval Latency: 4.93, Epsilon: 0.207, Server Diversity: 1.0/10
+Episode 1100/2000 [1h 21m 52s], Train Reward: -20.00, Train Latency: 2.88, Eval Reward: -61.41, Eval Latency: 5.09, Epsilon: 0.201, Server Diversity: 1.0/10
+Early stopping at episode 1100
+C:\Users\User.WINDOWS-DJBC79V\Desktop\Thesis\Thesis\implementations\VAE_second.py:793: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(path, map_location=self.device)
+Final evaluation - Reward: -5.33, Latency: 1.87, Server Diversity: 4.0/10
+
+
+
+
+C:\Users\User.WINDOWS-DJBC79V\anaconda3\envs\tens_env\Lib\site-packages\torch\optim\lr_scheduler.py:224: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+Episode 0/2000 [0h 0m 2s], Train Reward: 0.20, Train Latency: 1.32, Eval Reward: -16.58, Eval Latency: 2.51, Epsilon: 1.000, LR: 0.000300, Server Diversity: 7.7/10
+New best model saved with reward: -16.58 (improvement: inf)
+C:\Users\User.WINDOWS-DJBC79V\Desktop\Thesis\Thesis\implementations\Hybrid_second.py:1150: UserWarning: Using a target size (torch.Size([64, 10])) that is different to the input size (torch.Size([64, 1])). This will likely lead to incorrect results due to broadcasting. Please ensure they have the same size.
+  q1_loss = (weights_tensor.unsqueeze(1) * F.smooth_l1_loss(q1_selected, target_q, reduction='none')).mean()
+C:\Users\User.WINDOWS-DJBC79V\Desktop\Thesis\Thesis\implementations\Hybrid_second.py:1151: UserWarning: Using a target size (torch.Size([64, 10])) that is different to the input size (torch.Size([64, 1])). This will likely lead to incorrect results due to broadcasting. Please ensure they have the same size.
+  q2_loss = (weights_tensor.unsqueeze(1) * F.smooth_l1_loss(q2_selected, target_q, reduction='none')).mean()   
+Episode 25/2000 [0h 16m 16s], Train Reward: 0.49, Train Latency: 1.33, Eval Reward: -36.56, Eval Latency: 3.43, Epsilon: 0.987, LR: 0.000300, Server Diversity: 4.0/10
+No improvement for 1 evaluations (deficit: 19.98)
+Episode 50/2000 [1h 10m 18s], Train Reward: 1.37, Train Latency: 1.30, Eval Reward: -38.34, Eval Latency: 3.49, Epsilon: 0.975, LR: 0.000300, Server Diversity: 4.8/10
+No improvement for 2 evaluations (deficit: 21.76)
+Episode 75/2000 [1h 40m 24s], Train Reward: 0.39, Train Latency: 1.35, Eval Reward: -26.04, Eval Latency: 2.98, Epsilon: 0.963, LR: 0.000300, Server Diversity: 4.9/10
+No improvement for 3 evaluations (deficit: 9.46)
+Episode 100/2000 [2h 8m 38s], Train Reward: 0.19, Train Latency: 1.32, Eval Reward: -43.19, Eval Latency: 3.24, Epsilon: 0.951, LR: 0.000300, Server Diversity: 3.5/10
+No improvement for 4 evaluations (deficit: 26.61)
+Checkpoint saved at episode 100
+Episode 125/2000 [2h 36m 54s], Train Reward: 0.33, Train Latency: 1.33, Eval Reward: -57.21, Eval Latency: 4.94, Epsilon: 0.939, LR: 0.000300, Server Diversity: 3.7/10
+No improvement for 5 evaluations (deficit: 40.64)
+Episode 150/2000 [3h 5m 30s], Train Reward: 2.18, Train Latency: 1.33, Eval Reward: -61.34, Eval Latency: 5.21, Epsilon: 0.927, LR: 0.000299, Server Diversity: 3.0/10
+No improvement for 6 evaluations (deficit: 44.76)
+Episode 175/2000 [3h 33m 49s], Train Reward: 1.73, Train Latency: 1.31, Eval Reward: -62.19, Eval Latency: 5.17, Epsilon: 0.916, LR: 0.000299, Server Diversity: 3.2/10
+No improvement for 7 evaluations (deficit: 45.61)
+Episode 200/2000 [4h 1m 56s], Train Reward: 1.49, Train Latency: 1.35, Eval Reward: -56.19, Eval Latency: 4.72, Epsilon: 0.904, LR: 0.000299, Server Diversity: 4.1/10
+No improvement for 8 evaluations (deficit: 39.61)
+Checkpoint saved at episode 200
+Episode 225/2000 [4h 30m 8s], Train Reward: 1.28, Train Latency: 1.33, Eval Reward: -55.98, Eval Latency: 4.73, Epsilon: 0.893, LR: 0.000299, Server Diversity: 4.3/10
+No improvement for 9 evaluations (deficit: 39.40)
+Episode 250/2000 [4h 58m 38s], Train Reward: 0.06, Train Latency: 1.34, Eval Reward: -44.51, Eval Latency: 3.88, Epsilon: 0.882, LR: 0.000298, Server Diversity: 4.3/10
+No improvement for 10 evaluations (deficit: 27.93)
+Performance plateaued - trying component weight adjustment
+Component weights set to: Transformer=0.9867894434688683, GNN=1.1128390008349816, VAE=1.1555460028183673       
+Episode 275/2000 [5h 26m 54s], Train Reward: 0.59, Train Latency: 1.34, Eval Reward: -56.60, Eval Latency: 5.38, Epsilon: 0.871, LR: 0.000298, Server Diversity: 3.9/10
+No improvement for 11 evaluations (deficit: 40.02)
+Performance plateaued - trying component weight adjustment
+Component weights set to: Transformer=0.9904667328978048, GNN=1.0141850337354568, VAE=1.0552736292707576       
+Episode 300/2000 [5h 55m 1s], Train Reward: 1.01, Train Latency: 1.34, Eval Reward: -58.10, Eval Latency: 5.49, Epsilon: 0.860, LR: 0.000298, Server Diversity: 3.3/10
+No improvement for 12 evaluations (deficit: 41.53)
+Performance plateaued - trying component weight adjustment
+Component weights set to: Transformer=1.0219411919646562, GNN=1.0233987613485687, VAE=1.1159183123661338       
+Checkpoint saved at episode 300
+Episode 325/2000 [6h 23m 34s], Train Reward: 0.77, Train Latency: 1.34, Eval Reward: -38.39, Eval Latency: 3.11, Epsilon: 0.227, LR: 0.000297, Server Diversity: 4.0/10
+No improvement for 13 evaluations (deficit: 21.82)
+Performance plateaued - trying component weight adjustment
+Component weights set to: Transformer=0.9588384498147197, GNN=1.1578407576906218, VAE=1.1698876075151081       
+No improvement for 15 evaluations (deficit: 32.46)
+Performance plateaued - trying component weight adjustment
+Component weights set to: Transformer=1.0448899227038402, GNN=1.012624497624704, VAE=1.0266613005723435
+Episode 400/2000 [7h 49m 20s], Train Reward: 0.49, Train Latency: 1.32, Eval Reward: -48.74, Eval Latency: 3.56, Epsilon: 0.400, LR: 0.000296, Server Diversity: 2.0/10
+No improvement for 16 evaluations (deficit: 32.16)
+Performance plateaued - trying component weight adjustment
+Component weights set to: Transformer=0.9710927496207828, GNN=1.1551998451149301, VAE=1.0756805825561195
+Checkpoint saved at episode 400
+Episode 425/2000 [8h 16m 57s], Train Reward: 0.11, Train Latency: 1.33, Eval Reward: -49.13, Eval Latency: 3.59, Epsilon: 0.390, LR: 0.000295, Server Diversity: 2.0/10
+No improvement for 17 evaluations (deficit: 32.55)
+Performance plateaued - trying component weight adjustment
+Component weights set to: Transformer=0.9835348142720641, GNN=1.1041960927916568, VAE=1.0270750858837265
+Episode 450/2000 [8h 44m 48s], Train Reward: 0.93, Train Latency: 1.34, Eval Reward: -65.19, Eval Latency: 5.38, Epsilon: 0.363, LR: 0.000295, Server Diversity: 1.0/10
+No improvement for 18 evaluations (deficit: 48.61)
+Performance plateaued - trying component weight adjustment
+Component weights set to: Transformer=0.9884527481847375, GNN=1.0734286488338753, VAE=1.1698830853384008
+Episode 475/2000 [9h 12m 25s], Train Reward: 1.36, Train Latency: 1.32, Eval Reward: -61.14, Eval Latency: 5.29, Epsilon: 0.323, LR: 0.000294, Server Diversity: 1.0/10
+No improvement for 19 evaluations (deficit: 44.56)
+Performance plateaued - trying component weight adjustment
+Component weights set to: Transformer=0.9854504030715615, GNN=1.1381711450614842, VAE=1.0396909415943858
+Episode 500/2000 [9h 39m 59s], Train Reward: -0.13, Train Latency: 1.35, Eval Reward: -61.45, Eval Latency: 5.28, Epsilon: 0.275, LR: 0.000294, Server Diversity: 1.0/10
+No improvement for 20 evaluations (deficit: 44.87)
+Early stopping at episode 500
+Loading best model for final evaluation...
+Final evaluation - Reward: -11.48, Latency: 2.52, Server Diversity: 8.0/10
+Training metrics saved
