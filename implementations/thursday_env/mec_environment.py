@@ -110,7 +110,7 @@ class MECEnvironment(gym.Env):
         # Base parameters based on the paper's specifications
         self.task_size_range = (500, 10000)  # Data size in KB (from 500KB to 10MB)
         self.cpu_cycles_range = (49, 1123)   # CPU cycles required in megacycles
-        self.deadline_range = (0.5, 2.5)     # Deadline in seconds
+        self.deadline_range = (10.0, 30.0)     # Deadline in seconds
         
         # Network parameters
         self.bandwidth = 5  # Bandwidth in MHz, as specified in the paper
@@ -131,9 +131,9 @@ class MECEnvironment(gym.Env):
         self.mv_mobility_factor = 0.05      # How fast MVs move (in meters per time slot)
         
         # Weights for reward calculation
-        self.latency_weight = 0.5
-        self.energy_weight = 0.3
-        self.completion_weight = 0.2
+        self.latency_weight = 0.3
+        self.energy_weight = 0.4
+        self.completion_weight = 0.3
         
         # Parameters for channel gain calculation
         self.channel_gain_base = 1e-6  # Base channel gain at 1m distance
@@ -509,10 +509,10 @@ class MECEnvironment(gym.Env):
             # Calculate reward components
             latency_reward = -self.latency_weight * (processing_time / self.task_deadline[mv_idx])
             energy_reward = -self.energy_weight * energy_consumption
-            completion_reward = self.completion_weight * (2 * tasks_completed[mv_idx] - 1)  # +0.2 if completed, -0.2 if not
+            # completion_reward = self.completion_weight * (100000 if tasks_completed[mv_idx] else -150000)  # +0.2 if completed, -0.2 if not
             
             # Combined reward
-            rewards[mv_idx] = latency_reward + energy_reward + completion_reward
+            rewards[mv_idx] = latency_reward + energy_reward 
         
         # Update environment state
         self._update_queues(action)
