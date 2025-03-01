@@ -482,7 +482,7 @@ if __name__ == "__main__":
         'num_mvs': 5,               # Number of mobile vehicles
         'num_edge_servers': 3,       # Number of edge servers
         'difficulty': 'normal',      # Difficulty level: 'easy', 'normal', or 'hard'
-        'num_episodes': 2000,        # Number of training episodes
+        'num_episodes': 3000,        # Number of training episodes
         'max_steps': 100             # Maximum steps per episode
     }
     
