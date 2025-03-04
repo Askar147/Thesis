@@ -1,0 +1,7 @@
+{
+    "num_mvs": 5,
+    "num_edge_servers": 3,
+    "difficulty": "normal",
+    "num_episodes": 2000,
+    "max_steps": 100
+}
