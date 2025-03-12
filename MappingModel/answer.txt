@@ -1,0 +1,137 @@
+The idea behind a mapping model is to take measurements from isolated task executions and adjust them to predict the behavior when tasks run concurrently. Here’s a step-by-step guide to designing and implementing such a mapping model:
+
+1. Data Collection
+a. Isolated Measurements:
+
+Run each task independently (i.e., one task at a time) on each device (Nano and Xavier).
+Record metrics for each task, such as:
+Energy Consumption: Measured via tegrastats.
+CPU Load, Memory Usage, and Temperature: Collected via Docker stats.
+Execution Time: Start/stop timestamps from your code.
+Store these metrics with a unique task ID and record the task parameters (e.g., cycles, potential values).
+b. Concurrent Measurements:
+
+Run controlled experiments where multiple tasks execute concurrently on the same device.
+Record the same metrics as above for each task (or the aggregate if individual tasks aren’t separately measurable).
+Label the experiments with the number of concurrent tasks and other relevant parameters.
+2. Data Preprocessing
+a. Synchronize and Align Data:
+
+Use timestamps or unique IDs to align isolated and concurrent measurements.
+Normalize the values if necessary (e.g., scale energy consumption to a common range).
+b. Feature Engineering:
+
+Input Features: Use the isolated metrics (e.g., energy per task, CPU load, execution time).
+Additional Features: Include the number of concurrent tasks and possibly interaction terms (e.g., isolated energy * number of tasks).
+Output Variable: The measured metric under concurrent execution (e.g., total energy consumption, average CPU load).
+3. Model Development
+a. Choose a Modeling Approach:
+
+Linear Regression: A simple starting point where you model the concurrent metric as a linear combination of the isolated metrics and the concurrency level.
+For example:
+𝐸
+𝑐
+𝑜
+𝑛
+𝑐
+𝑢
+𝑟
+𝑟
+𝑒
+𝑛
+𝑡
+=
+𝛽
+0
++
+𝛽
+1
+⋅
+𝐸
+𝑖
+𝑠
+𝑜
+𝑙
+𝑎
+𝑡
+𝑒
+𝑑
++
+𝛽
+2
+⋅
+𝑁
++
+𝜖
+E 
+concurrent
+​
+ =β 
+0
+​
+ +β 
+1
+​
+ ⋅E 
+isolated
+​
+ +β 
+2
+​
+ ⋅N+ϵ
+Here, 
+𝐸
+𝑐
+𝑜
+𝑛
+𝑐
+𝑢
+𝑟
+𝑟
+𝑒
+𝑛
+𝑡
+E 
+concurrent
+​
+  is the observed energy under concurrency, 
+𝐸
+𝑖
+𝑠
+𝑜
+𝑙
+𝑎
+𝑡
+𝑒
+𝑑
+E 
+isolated
+​
+  is the baseline energy from an isolated run, 
+𝑁
+N is the number of tasks running concurrently, and 
+𝛽
+β’s are the coefficients.
+Non-linear Models: If the relationship is not linear, consider polynomial regression, decision trees, or even a neural network model.
+Hybrid Models: You might also include interaction terms or use ensemble methods if you suspect that the interference effects are complex.
+b. Training the Model:
+
+Split your dataset into training and testing sets.
+Use a tool like Python’s scikit-learn for regression analysis:
+Fit the model on the training set.
+Evaluate using metrics like R², MAE (Mean Absolute Error), or RMSE (Root Mean Square Error).
+c. Model Validation:
+
+Cross-validation: Ensure that your model generalizes well by using k-fold cross-validation.
+Residual Analysis: Check the residuals (differences between predicted and observed values) to validate model assumptions.
+Sensitivity Analysis: Evaluate how changes in the number of concurrent tasks affect the prediction.
+4. Model Integration
+a. Correction Factors:
+
+Once your model is trained, the coefficients (or model parameters) become your “scaling factors.”
+For instance, if your model shows that energy consumption scales non-linearly with the number of concurrent tasks, use the model to predict the adjusted energy consumption for any given isolated measurement.
+b. Use in Offloading Decisions:
+
+Integrate the mapping model into your offloading decision engine.
+When a new task is about to be offloaded, estimate its isolated metrics and then use your mapping function to predict its performance in a concurrent setting.
+Use these predictions as part of your reward function or scheduling criteria to choose the optimal offloading strategy.
