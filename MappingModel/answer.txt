@@ -1,5 +1,13 @@
 The idea behind a mapping model is to take measurements from isolated task executions and adjust them to predict the behavior when tasks run concurrently. Here’s a step-by-step guide to designing and implementing such a mapping model:
 
+
+Experimental Simplicity vs. Completeness:
+You don’t necessarily have to test every possible pair (e.g., scenario 1 with scenario 2, scenario 1 with scenario 3, etc.). Instead, design experiments where you vary the number of concurrent tasks (e.g., run 2, 4, 8, 16 tasks at once) and, if needed, mix tasks from a few distinct scenarios to capture a range of interference effects.
+
+Practical Approach:
+Start by running concurrent experiments with a fixed number of tasks (all from one scenario) to establish a baseline. Then, if you suspect that mixing tasks from different scenarios changes the behavior significantly, run a few mixed tests. The most critical factor is that you collect enough data across different concurrency levels for your mapping model to learn the interference and scaling factors.
+
+
 1. Data Collection
 a. Isolated Measurements:
 
