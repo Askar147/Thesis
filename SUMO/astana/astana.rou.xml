@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes>
+    <!-- Define a vehicle type for cars -->
+    <vType id="car" accel="2.6" decel="4.5" length="5.0" minGap="2.5" maxSpeed="13.89" guiShape="passenger"/>
+    
+    <!-- Define a simple route using edge IDs that exist in your network.
+         Replace "edge1", "edge2", "edge3" with the actual edge IDs from astana.net.xml. -->
+    <route id="r1" edges="edge1 edge2 edge3"/>
+    
+    <!-- Create several vehicles on route r1 with staggered departure times -->
+    <vehicle id="veh0" type="car" route="r1" depart="0"/>
+    <vehicle id="veh1" type="car" route="r1" depart="10"/>
+    <vehicle id="veh2" type="car" route="r1" depart="20"/>
+    <vehicle id="veh3" type="car" route="r1" depart="30"/>
+    <vehicle id="veh4" type="car" route="r1" depart="40"/>
+</routes>
