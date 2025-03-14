@@ -1,0 +1,239 @@
+2025-03-10 18:12:57 #           time             counts unit events
+2025-03-10 18:12:57 1.001231198        531 613 479      cycles
+2025-03-10 18:12:57 1.001231198        293 001 557      instructions              #    0,55  insn per cycle
+2025-03-10 18:12:57 1.001231198        134 124 332      cache-references
+2025-03-10 18:12:57 1.001231198          3 903 300      cache-misses              #    2,910 % of all cache refs
+2025-03-10 18:12:58 2.001680048        469 465 684      cycles
+2025-03-10 18:12:58 2.001680048        262 879 965      instructions              #    0,53  insn per cycle
+2025-03-10 18:12:58 2.001680048        118 764 329      cache-references
+2025-03-10 18:12:58 2.001680048          3 855 026      cache-misses              #    3,049 % of all cache refs
+2025-03-10 18:12:59 3.002239160        325 344 042      cycles
+2025-03-10 18:12:59 3.002239160        188 850 793      instructions              #    0,43  insn per cycle
+2025-03-10 18:12:59 3.002239160         88 437 807      cache-references
+2025-03-10 18:12:59 3.002239160          2 796 362      cache-misses              #    2,458 % of all cache refs
+2025-03-10 18:13:00 4.002793479        426 097 832      cycles
+2025-03-10 18:13:00 4.002793479        268 893 544      instructions              #    0,61  insn per cycle
+2025-03-10 18:13:00 4.002793479        122 795 982      cache-references
+2025-03-10 18:13:00 4.002793479          3 610 487      cache-misses              #    3,112 % of all cache refs
+2025-03-10 18:13:01 5.003205611        395 426 940      cycles
+2025-03-10 18:13:01 5.003205611        238 927 922      instructions              #    0,56  insn per cycle
+2025-03-10 18:13:01 5.003205611        112 622 121      cache-references
+2025-03-10 18:13:01 5.003205611          3 203 737      cache-misses              #    2,777 % of all cache refs
+2025-03-10 18:13:02 6.003525346        482 597 616      cycles
+2025-03-10 18:13:02 6.003525346        282 156 554      instructions              #    0,64  insn per cycle
+2025-03-10 18:13:02 6.003525346        133 584 440      cache-references
+2025-03-10 18:13:02 6.003525346          4 232 433      cache-misses              #    3,575 % of all cache refs
+2025-03-10 18:13:03 7.003889613        428 968 484      cycles
+2025-03-10 18:13:03 7.003889613        254 402 092      instructions              #    0,58  insn per cycle
+2025-03-10 18:13:03 7.003889613        121 902 741      cache-references
+2025-03-10 18:13:03 7.003889613          3 809 641      cache-misses              #    3,204 % of all cache refs
+2025-03-10 18:13:04 8.004215338        392 619 903      cycles
+2025-03-10 18:13:04 8.004215338        219 432 062      instructions              #    0,51  insn per cycle
+2025-03-10 18:13:04 8.004215338        104 442 853      cache-references
+2025-03-10 18:13:04 8.004215338          3 596 369      cache-misses              #    3,072 % of all cache refs
+2025-03-10 18:13:05 9.004492156        426 415 983      cycles
+2025-03-10 18:13:05 9.004492156        244 241 489      instructions              #    0,57  insn per cycle
+2025-03-10 18:13:05 9.004492156        114 399 261      cache-references
+2025-03-10 18:13:05 9.004492156          3 353 380      cache-misses              #    2,871 % of all cache refs
+2025-03-10 18:13:06 10.005856427          8 959 078      cycles
+2025-03-10 18:13:06 10.005856427          4 087 486      instructions              #    0,01  insn per cycle
+2025-03-10 18:13:06 10.005856427          1 949 910      cache-references
+2025-03-10 18:13:06 10.005856427             60 013      cache-misses              #    0,057 % of all cache refs
+2025-03-10 18:13:07 11.008377892         94 467 534      cycles
+2025-03-10 18:13:07 11.008377892         48 863 925      instructions              #    0,13  insn per cycle
+2025-03-10 18:13:07 11.008377892         23 436 372      cache-references
+2025-03-10 18:13:07 11.008377892            712 187      cache-misses              #    0,728 % of all cache refs
+2025-03-10 18:13:08 12.010140030        295 171 849      cycles
+2025-03-10 18:13:08 12.010140030        193 051 572      instructions              #    0,54  insn per cycle
+2025-03-10 18:13:08 12.010140030         84 143 763      cache-references
+2025-03-10 18:13:08 12.010140030          2 961 224      cache-misses              #    3,062 % of all cache refs
+2025-03-10 18:13:09 13.010481067        329 804 533      cycles
+2025-03-10 18:13:09 13.010481067        184 038 078      instructions              #    0,52  insn per cycle
+2025-03-10 18:13:09 13.010481067         82 771 738      cache-references
+2025-03-10 18:13:09 13.010481067          2 919 923      cache-misses              #    3,053 % of all cache refs
+2025-03-10 18:13:10 14.010796376        478 764 446      cycles
+2025-03-10 18:13:10 14.010796376        285 395 932      instructions              #    0,79  insn per cycle
+2025-03-10 18:13:10 14.010796376        115 326 621      cache-references
+2025-03-10 18:13:10 14.010796376          4 524 930      cache-misses              #    4,662 % of all cache refs
+2025-03-10 18:13:11 15.011250486        410 584 410      cycles
+2025-03-10 18:13:11 15.011250486        219 879 369      instructions              #    0,60  insn per cycle
+2025-03-10 18:13:11 15.011250486         98 927 587      cache-references
+2025-03-10 18:13:11 15.011250486          3 654 929      cache-misses              #    3,761 % of all cache refs
+2025-03-10 18:13:12 16.012215746        318 134 279      cycles
+2025-03-10 18:13:12 16.012215746        163 888 304      instructions              #    0,45  insn per cycle
+2025-03-10 18:13:12 16.012215746         78 972 394      cache-references
+2025-03-10 18:13:12 16.012215746          2 665 627      cache-misses              #    2,776 % of all cache refs
+2025-03-10 18:13:13 17.012558033        344 567 891      cycles
+2025-03-10 18:13:13 17.012558033        218 740 487      instructions              #    0,60  insn per cycle
+2025-03-10 18:13:13 17.012558033        105 837 891      cache-references
+2025-03-10 18:13:13 17.012558033          3 418 796      cache-misses              #    3,539 % of all cache refs
+2025-03-10 18:13:14 18.012807716        396 403 008      cycles
+2025-03-10 18:13:14 18.012807716        170 183 838      instructions              #    0,47  insn per cycle
+2025-03-10 18:13:14 18.012807716         84 551 817      cache-references
+2025-03-10 18:13:14 18.012807716          5 085 531      cache-misses              #    5,301 % of all cache refs
+2025-03-10 18:13:15 19.013075003        393 220 449      cycles
+2025-03-10 18:13:15 19.013075003        190 114 332      instructions              #    0,52  insn per cycle
+2025-03-10 18:13:15 19.013075003         88 358 989      cache-references
+2025-03-10 18:13:15 19.013075003          4 995 750      cache-misses              #    5,229 % of all cache refs
+2025-03-10 18:13:16 20.013377863        372 826 469      cycles
+2025-03-10 18:13:16 20.013377863        202 612 749      instructions              #    0,55  insn per cycle
+2025-03-10 18:13:16 20.013377863         90 322 653      cache-references
+2025-03-10 18:13:16 20.013377863          5 727 970      cache-misses              #    6,011 % of all cache refs
+2025-03-10 18:13:17 21.013660619        365 494 715      cycles
+2025-03-10 18:13:17 21.013660619        197 209 288      instructions              #    0,54  insn per cycle
+2025-03-10 18:13:17 21.013660619         90 516 530      cache-references
+2025-03-10 18:13:17 21.013660619          5 487 685      cache-misses              #    5,773 % of all cache refs
+2025-03-10 18:13:18 22.014009937        409 495 585      cycles
+2025-03-10 18:13:18 22.014009937        211 253 915      instructions              #    0,57  insn per cycle
+2025-03-10 18:13:18 22.014009937         97 999 801      cache-references
+2025-03-10 18:13:18 22.014009937          6 116 373      cache-misses              #    6,425 % of all cache refs
+2025-03-10 18:13:19 23.014281704        384 060 626      cycles
+2025-03-10 18:13:19 23.014281704        195 075 211      instructions              #    0,53  insn per cycle
+2025-03-10 18:13:19 23.014281704         89 350 815      cache-references
+2025-03-10 18:13:19 23.014281704          5 649 403      cache-misses              #    5,951 % of all cache refs
+2025-03-10 18:13:20 24.014602845        358 872 983      cycles
+2025-03-10 18:13:20 24.014602845        189 948 132      instructions              #    0,52  insn per cycle
+2025-03-10 18:13:20 24.014602845         88 814 596      cache-references
+2025-03-10 18:13:20 24.014602845          5 087 110      cache-misses              #    5,373 % of all cache refs
+2025-03-10 18:13:21 25.014872580        425 209 213      cycles
+2025-03-10 18:13:21 25.014872580        233 074 489      instructions              #    0,63  insn per cycle
+2025-03-10 18:13:21 25.014872580        105 713 174      cache-references
+2025-03-10 18:13:21 25.014872580          6 056 481      cache-misses              #    6,367 % of all cache refs
+2025-03-10 18:13:22 #           time             counts unit events
+2025-03-10 18:13:22 26.015170961        394 482 035      cycles
+2025-03-10 18:13:22 26.015170961        225 246 515      instructions              #    0,61  insn per cycle
+2025-03-10 18:13:22 26.015170961        103 462 939      cache-references
+2025-03-10 18:13:22 26.015170961          4 849 641      cache-misses              #    5,081 % of all cache refs
+2025-03-10 18:13:23 27.015458717        439 457 516      cycles
+2025-03-10 18:13:23 27.015458717        238 295 594      instructions              #    0,64  insn per cycle
+2025-03-10 18:13:23 27.015458717        109 723 078      cache-references
+2025-03-10 18:13:23 27.015458717          4 715 917      cache-misses              #    4,914 % of all cache refs
+2025-03-10 18:13:24 28.015762046        483 065 752      cycles
+2025-03-10 18:13:24 28.015762046        319 219 437      instructions              #    0,84  insn per cycle
+2025-03-10 18:13:24 28.015762046        137 916 543      cache-references
+2025-03-10 18:13:24 28.015762046          4 736 379      cache-misses              #    4,859 % of all cache refs
+2025-03-10 18:13:25 29.016062770        351 423 502      cycles
+2025-03-10 18:13:25 29.016062770        285 863 967      instructions              #    0,76  insn per cycle
+2025-03-10 18:13:25 29.016062770        123 047 104      cache-references
+2025-03-10 18:13:25 29.016062770          3 491 075      cache-misses              #    3,550 % of all cache refs
+2025-03-10 18:13:26 30.016332662        536 081 583      cycles
+2025-03-10 18:13:26 30.016332662        294 290 466      instructions              #    0,77  insn per cycle
+2025-03-10 18:13:26 30.016332662        125 286 375      cache-references
+2025-03-10 18:13:26 30.016332662          5 804 687      cache-misses              #    5,849 % of all cache refs
+2025-03-10 18:13:27 31.016617032        467 503 144      cycles
+2025-03-10 18:13:27 31.016617032        254 808 771      instructions              #    0,66  insn per cycle
+2025-03-10 18:13:27 31.016617032        114 635 885      cache-references
+2025-03-10 18:13:27 31.016617032          5 388 943      cache-misses              #    5,403 % of all cache refs
+2025-03-10 18:13:28 32.016948955        429 695 112      cycles
+2025-03-10 18:13:28 32.016948955        298 936 932      instructions              #    0,77  insn per cycle
+2025-03-10 18:13:28 32.016948955        134 232 701      cache-references
+2025-03-10 18:13:28 32.016948955          6 881 182      cache-misses              #    6,825 % of all cache refs
+2025-03-10 18:13:29 33.017210565        426 859 357      cycles
+2025-03-10 18:13:29 33.017210565        298 676 009      instructions              #    0,77  insn per cycle
+2025-03-10 18:13:29 33.017210565        127 005 122      cache-references
+2025-03-10 18:13:29 33.017210565          6 093 708      cache-misses              #    5,997 % of all cache refs
+2025-03-10 18:13:30 34.017494987        503 745 012      cycles
+2025-03-10 18:13:30 34.017494987        274 545 419      instructions              #    0,70  insn per cycle
+2025-03-10 18:13:30 34.017494987        117 996 886      cache-references
+2025-03-10 18:13:30 34.017494987          5 562 560      cache-misses              #    5,448 % of all cache refs
+2025-03-10 18:13:31 35.017789306        538 008 560      cycles
+2025-03-10 18:13:31 35.017789306        293 972 573      instructions              #    0,74  insn per cycle
+2025-03-10 18:13:31 35.017789306        127 547 569      cache-references
+2025-03-10 18:13:31 35.017789306          5 274 715      cache-misses              #    5,130 % of all cache refs
+2025-03-10 18:13:32 36.019030920        454 223 480      cycles
+2025-03-10 18:13:32 36.019030920        237 904 804      instructions              #    0,60  insn per cycle
+2025-03-10 18:13:32 36.019030920        106 727 056      cache-references
+2025-03-10 18:13:32 36.019030920          4 032 815      cache-misses              #    3,918 % of all cache refs
+2025-03-10 18:13:33 37.020759152          2 931 851      cycles
+2025-03-10 18:13:33 37.020759152          1 010 728      instructions              #    0,00  insn per cycle
+2025-03-10 18:13:33 37.020759152            475 527      cache-references
+2025-03-10 18:13:33 37.020759152             13 473      cache-misses              #    0,013 % of all cache refs
+2025-03-10 18:13:34 38.022147486      <not counted>      cycles
+2025-03-10 18:13:34 38.022147486      <not counted>      instructions
+2025-03-10 18:13:34 38.022147486      <not counted>      cache-references
+2025-03-10 18:13:34 38.022147486      <not counted>      cache-misses
+2025-03-10 18:13:35 39.022770243      <not counted>      cycles
+2025-03-10 18:13:35 39.022770243      <not counted>      instructions
+2025-03-10 18:13:35 39.022770243      <not counted>      cache-references
+2025-03-10 18:13:35 39.022770243      <not counted>      cache-misses
+2025-03-10 18:13:36 40.024646601      <not counted>      cycles
+2025-03-10 18:13:36 40.024646601      <not counted>      instructions
+2025-03-10 18:13:36 40.024646601      <not counted>      cache-references
+2025-03-10 18:13:36 40.024646601      <not counted>      cache-misses
+2025-03-10 18:13:37 41.026889314      <not counted>      cycles
+2025-03-10 18:13:37 41.026889314      <not counted>      instructions
+2025-03-10 18:13:37 41.026889314      <not counted>      cache-references
+2025-03-10 18:13:37 41.026889314      <not counted>      cache-misses
+2025-03-10 18:13:38 42.028994527      <not counted>      cycles
+2025-03-10 18:13:38 42.028994527      <not counted>      instructions
+2025-03-10 18:13:38 42.028994527      <not counted>      cache-references
+2025-03-10 18:13:38 42.028994527      <not counted>      cache-misses
+2025-03-10 18:13:39 43.032569225      <not counted>      cycles
+2025-03-10 18:13:39 43.032569225      <not counted>      instructions
+2025-03-10 18:13:39 43.032569225      <not counted>      cache-references
+2025-03-10 18:13:39 43.032569225      <not counted>      cache-misses
+2025-03-10 18:13:40 44.034463500      <not counted>      cycles
+2025-03-10 18:13:40 44.034463500      <not counted>      instructions
+2025-03-10 18:13:40 44.034463500      <not counted>      cache-references
+2025-03-10 18:13:40 44.034463500      <not counted>      cache-misses
+2025-03-10 18:13:41 45.035545686      <not counted>      cycles
+2025-03-10 18:13:41 45.035545686      <not counted>      instructions
+2025-03-10 18:13:41 45.035545686      <not counted>      cache-references
+2025-03-10 18:13:41 45.035545686      <not counted>      cache-misses
+2025-03-10 18:13:42 46.039167833      <not counted>      cycles
+2025-03-10 18:13:42 46.039167833      <not counted>      instructions
+2025-03-10 18:13:42 46.039167833      <not counted>      cache-references
+2025-03-10 18:13:42 46.039167833      <not counted>      cache-misses
+2025-03-10 18:13:43 47.041048566      <not counted>      cycles
+2025-03-10 18:13:43 47.041048566      <not counted>      instructions
+2025-03-10 18:13:43 47.041048566      <not counted>      cache-references
+2025-03-10 18:13:43 47.041048566      <not counted>      cache-misses
+2025-03-10 18:13:44 48.050930430      <not counted>      cycles
+2025-03-10 18:13:44 48.050930430      <not counted>      instructions
+2025-03-10 18:13:44 48.050930430      <not counted>      cache-references
+2025-03-10 18:13:44 48.050930430      <not counted>      cache-misses
+2025-03-10 18:13:45 49.054566848      <not counted>      cycles
+2025-03-10 18:13:45 49.054566848      <not counted>      instructions
+2025-03-10 18:13:45 49.054566848      <not counted>      cache-references
+2025-03-10 18:13:45 49.054566848      <not counted>      cache-misses
+2025-03-10 18:13:46 50.056472008      <not counted>      cycles
+2025-03-10 18:13:46 50.056472008      <not counted>      instructions
+2025-03-10 18:13:46 50.056472008      <not counted>      cache-references
+2025-03-10 18:13:46 50.056472008      <not counted>      cache-misses
+2025-03-10 18:13:47 #           time             counts unit events
+2025-03-10 18:13:47 51.057728623      <not counted>      cycles
+2025-03-10 18:13:47 51.057728623      <not counted>      instructions
+2025-03-10 18:13:47 51.057728623      <not counted>      cache-references
+2025-03-10 18:13:47 51.057728623      <not counted>      cache-misses
+2025-03-10 18:13:48 52.059086592      <not counted>      cycles
+2025-03-10 18:13:48 52.059086592      <not counted>      instructions
+2025-03-10 18:13:48 52.059086592      <not counted>      cache-references
+2025-03-10 18:13:48 52.059086592      <not counted>      cache-misses
+2025-03-10 18:13:49 53.060709615      <not counted>      cycles
+2025-03-10 18:13:49 53.060709615      <not counted>      instructions
+2025-03-10 18:13:49 53.060709615      <not counted>      cache-references
+2025-03-10 18:13:49 53.060709615      <not counted>      cache-misses
+2025-03-10 18:13:50 54.061301174      <not counted>      cycles
+2025-03-10 18:13:50 54.061301174      <not counted>      instructions
+2025-03-10 18:13:50 54.061301174      <not counted>      cache-references
+2025-03-10 18:13:50 54.061301174      <not counted>      cache-misses
+2025-03-10 18:13:51 55.062526226      <not counted>      cycles
+2025-03-10 18:13:51 55.062526226      <not counted>      instructions
+2025-03-10 18:13:51 55.062526226      <not counted>      cache-references
+2025-03-10 18:13:51 55.062526226      <not counted>      cache-misses
+2025-03-10 18:13:52 56.062865701      <not counted>      cycles
+2025-03-10 18:13:52 56.062865701      <not counted>      instructions
+2025-03-10 18:13:52 56.062865701      <not counted>      cache-references
+2025-03-10 18:13:52 56.062865701      <not counted>      cache-misses
+2025-03-10 18:13:53 57.064425130      <not counted>      cycles
+2025-03-10 18:13:53 57.064425130      <not counted>      instructions
+2025-03-10 18:13:53 57.064425130      <not counted>      cache-references
+2025-03-10 18:13:53 57.064425130      <not counted>      cache-misses
+2025-03-10 18:13:54 58.066589405      <not counted>      cycles
+2025-03-10 18:13:54 58.066589405      <not counted>      instructions
+2025-03-10 18:13:54 58.066589405      <not counted>      cache-references
+2025-03-10 18:13:54 58.066589405      <not counted>      cache-misses
+2025-03-10 18:13:55 59.069053213      <not counted>      cycles
+2025-03-10 18:13:55 59.069053213      <not counted>      instructions
+2025-03-10 18:13:55 59.069053213      <not counted>      cache-references
+2025-03-10 18:13:55 59.069053213      <not counted>      cache-misses

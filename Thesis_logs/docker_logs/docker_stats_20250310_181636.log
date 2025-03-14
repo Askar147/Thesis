@@ -1,0 +1,64 @@
+2025-03-10 18:16:36 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O       BLOCK I/O     PIDS
+62cd9cce609e   40.46%    19.43MiB / 512MiB   1.53kB / 0B   39.4MB / 0B   10
+2025-03-10 18:16:39 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O       BLOCK I/O     PIDS
+62cd9cce609e   40.25%    28.15MiB / 512MiB   2.16kB / 0B   51.8MB / 0B   10
+2025-03-10 18:16:42 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O       BLOCK I/O     PIDS
+62cd9cce609e   40.48%    33.24MiB / 512MiB   2.36kB / 0B   63.6MB / 0B   10
+2025-03-10 18:16:44 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O       BLOCK I/O     PIDS
+62cd9cce609e   29.36%    36.48MiB / 512MiB   2.36kB / 0B   70.6MB / 0B   10
+2025-03-10 18:16:47 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O         BLOCK I/O     PIDS
+62cd9cce609e   38.55%    44.71MiB / 512MiB   4.08MB / 21kB   70.7MB / 0B   16
+2025-03-10 18:16:49 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O           BLOCK I/O     PIDS
+62cd9cce609e   40.41%    58MiB / 512MiB      4.34MB / 21.8kB   75.5MB / 0B   28
+2025-03-10 18:16:52 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O         BLOCK I/O     PIDS
+62cd9cce609e   40.68%    61.84MiB / 512MiB   5.14MB / 40kB   78.5MB / 0B   22
+2025-03-10 18:16:55 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O           BLOCK I/O     PIDS
+62cd9cce609e   40.33%    61.95MiB / 512MiB   7.76MB / 59.2kB   78.5MB / 0B   22
+2025-03-10 18:16:57 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O           BLOCK I/O     PIDS
+62cd9cce609e   40.03%    64.19MiB / 512MiB   8.81MB / 62.5kB   78.5MB / 0B   22
+2025-03-10 18:17:00 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O           BLOCK I/O     PIDS
+62cd9cce609e   40.64%    64.35MiB / 512MiB   8.81MB / 62.5kB   78.5MB / 0B   22
+2025-03-10 18:17:02 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O           BLOCK I/O     PIDS
+62cd9cce609e   40.16%    69.2MiB / 512MiB    8.81MB / 62.5kB   78.5MB / 0B   22
+2025-03-10 18:17:05 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O           BLOCK I/O     PIDS
+62cd9cce609e   39.79%    69.75MiB / 512MiB   8.81MB / 62.5kB   78.5MB / 0B   22
+2025-03-10 18:17:08 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O           BLOCK I/O     PIDS
+62cd9cce609e   41.71%    69.81MiB / 512MiB   8.81MB / 76.9kB   78.5MB / 0B   22
+2025-03-10 18:17:10 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O   BLOCK I/O   PIDS
+62cd9cce609e   0.00%     0B / 0B             0B / 0B   0B / 0B     0
+2025-03-10 18:17:12 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O   BLOCK I/O   PIDS
+62cd9cce609e   0.00%     0B / 0B             0B / 0B   0B / 0B     0
+2025-03-10 18:17:13 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O   BLOCK I/O   PIDS
+62cd9cce609e   0.00%     0B / 0B             0B / 0B   0B / 0B     0
+2025-03-10 18:17:15 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O   BLOCK I/O   PIDS
+62cd9cce609e   0.00%     0B / 0B             0B / 0B   0B / 0B     0
+2025-03-10 18:17:17 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O   BLOCK I/O   PIDS
+62cd9cce609e   0.00%     0B / 0B             0B / 0B   0B / 0B     0
+2025-03-10 18:17:18 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O   BLOCK I/O   PIDS
+62cd9cce609e   0.00%     0B / 0B             0B / 0B   0B / 0B     0
+2025-03-10 18:17:20 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O   BLOCK I/O   PIDS
+62cd9cce609e   0.00%     0B / 0B             0B / 0B   0B / 0B     0
+2025-03-10 18:17:21 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O   BLOCK I/O   PIDS
+62cd9cce609e   0.00%     0B / 0B             0B / 0B   0B / 0B     0
+2025-03-10 18:17:23 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O   BLOCK I/O   PIDS
+62cd9cce609e   0.00%     0B / 0B             0B / 0B   0B / 0B     0
+2025-03-10 18:17:25 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O   BLOCK I/O   PIDS
+62cd9cce609e   0.00%     0B / 0B             0B / 0B   0B / 0B     0
+2025-03-10 18:17:26 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O   BLOCK I/O   PIDS
+62cd9cce609e   0.00%     0B / 0B             0B / 0B   0B / 0B     0
+2025-03-10 18:17:28 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O   BLOCK I/O   PIDS
+62cd9cce609e   0.00%     0B / 0B             0B / 0B   0B / 0B     0
+2025-03-10 18:17:29 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O   BLOCK I/O   PIDS
+62cd9cce609e   0.00%     0B / 0B             0B / 0B   0B / 0B     0
+2025-03-10 18:17:31 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O   BLOCK I/O   PIDS
+62cd9cce609e   0.00%     0B / 0B             0B / 0B   0B / 0B     0
+2025-03-10 18:17:33 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O   BLOCK I/O   PIDS
+62cd9cce609e   0.00%     0B / 0B             0B / 0B   0B / 0B     0
+2025-03-10 18:17:34 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O   BLOCK I/O   PIDS
+62cd9cce609e   0.00%     0B / 0B             0B / 0B   0B / 0B     0
+2025-03-10 18:17:36 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O   BLOCK I/O   PIDS
+62cd9cce609e   0.00%     0B / 0B             0B / 0B   0B / 0B     0
+2025-03-10 18:17:37 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O   BLOCK I/O   PIDS
+62cd9cce609e   0.00%     0B / 0B             0B / 0B   0B / 0B     0
+2025-03-10 18:17:39 CONTAINER      CPU %     MEM USAGE / LIMIT   NET I/O   BLOCK I/O   PIDS
+62cd9cce609e   0.00%     0B / 0B             0B / 0B   0B / 0B     0
