@@ -87,7 +87,6 @@ BASE_STATIONS = [
 # -------------------------------
 # Advanced Latency Model Parameters
 # -------------------------------
-# These parameters are placeholders and should be tuned to match real data.
 PROCESSING_DELAY = 0.5         # seconds constant processing delay
 PROPAGATION_FACTOR = 0.001     # seconds per meter
 ALPHA_INTERFERENCE = 0.005     # interference delay per nearby vehicle (seconds)
@@ -107,6 +106,20 @@ SCENARIO_DATA_SIZES = {
     9: 3500
 }
 
+# For return latency, assume result data sizes (in KB) for each scenario (placeholder)
+SCENARIO_RESULT_SIZES = {
+    0: 200,
+    1: 220,
+    2: 250,
+    3: 280,
+    4: 300,
+    5: 320,
+    6: 350,
+    7: 380,
+    8: 400,
+    9: 450
+}
+
 # -------------------------------
 # Helper Functions
 # -------------------------------
@@ -114,7 +127,7 @@ def euclidean_distance(pos1, pos2):
     return math.sqrt((pos1[0] - pos2[0]) ** 2 + (pos1[1] - pos2[1]) ** 2)
 
 def compute_transmission_delay(data_size):
-    # Assume BANDWIDTH = 10 Mbps (10 * 125 = 1250 KB/s)
+    # Assume BANDWIDTH = 10 Mbps -> 10*125 = 1250 KB/s
     return data_size / (10 * 125)
 
 def count_vehicles_in_coverage(vehicle_pos, radius):
@@ -134,8 +147,21 @@ def compute_latency(distance, vehicle_pos, data_size):
     noise = random.uniform(0, NOISE_FACTOR)
     return tx_delay + prop_delay + interference_delay + PROCESSING_DELAY + noise
 
+def compute_return_latency(distance, vehicle_pos, result_data_size):
+    """
+    Compute latency for returning the computed result.
+    This includes:
+      - Transmission delay for result data
+      - Propagation delay based on distance
+      - (Optionally) additional processing delay if needed (here, assumed negligible)
+    """
+    tx_return_delay = compute_transmission_delay(result_data_size)
+    prop_return_delay = distance * PROPAGATION_FACTOR  # Use same propagation factor
+    noise = random.uniform(0, NOISE_FACTOR / 2)  # Less noise for smaller result data
+    return tx_return_delay + prop_return_delay + noise
+
 def compute_energy(latency):
-    # Placeholder energy model; later, integrate detailed performance measurements.
+    # Placeholder energy model: energy as a function of latency
     return latency * 0.2
 
 def get_nearest_bs(vehicle_pos):
@@ -158,11 +184,9 @@ def assign_scenario():
 # -------------------------------
 def run_simulation():
     random.seed(42)
-    sumo_args = [sumolib.checkBinary('sumo'), "--ignore-route-errors", "-c", SUMO_CONFIG]
-    traci.start(sumo_args)
-
+    sumoBinary = sumolib.checkBinary('sumo')  # Use 'sumo-gui' for visualization
+    traci.start([sumoBinary, "--ignore-route-errors", "-c", SUMO_CONFIG])
     
-    # For handover detection, store last base station per vehicle
     last_bs_assignment = {}
     data_log = []
     
@@ -172,16 +196,23 @@ def run_simulation():
         vehicle_ids = traci.vehicle.getIDList()
         
         for veh in vehicle_ids:
-            pos = traci.vehicle.getPosition(veh)  # (x, y)
+            pos = traci.vehicle.getPosition(veh)
             speed = traci.vehicle.getSpeed(veh)
             bs_id, distance, in_coverage = get_nearest_bs(pos)
             
-            # Assign scenario ID and determine corresponding data size (KB)
+            # Assign a scenario ID and fetch data sizes for input and result
             scenario_id = assign_scenario()
             data_size = SCENARIO_DATA_SIZES.get(scenario_id, 1000)
+            result_size = SCENARIO_RESULT_SIZES.get(scenario_id, 200)
             
-            latency = compute_latency(distance, pos, data_size)
-            energy = compute_energy(latency)
+            # Compute latency for sending the task
+            send_latency = compute_latency(distance, pos, data_size)
+            # Compute latency for returning the result
+            return_latency = compute_return_latency(distance, pos, result_size)
+            # Total round-trip latency
+            total_latency = send_latency + return_latency
+            
+            energy = compute_energy(total_latency)
             
             prev_bs = last_bs_assignment.get(veh)
             handover = (prev_bs is not None and prev_bs != bs_id)
@@ -196,16 +227,18 @@ def run_simulation():
                 "base_station": bs_id,
                 "distance_to_bs": distance,
                 "in_coverage": in_coverage,
-                "latency": latency,
+                "send_latency": send_latency,
+                "return_latency": return_latency,
+                "total_latency": total_latency,
                 "energy": energy,
                 "scenario_id": scenario_id,
-                "data_size": data_size
+                "data_size": data_size,
+                "result_size": result_size
             })
-            
+        
         simulation_step += TIME_STEP
     
     traci.close()
-    
     df = pd.DataFrame(data_log)
     output_csv = os.path.join(os.getcwd(), "urban_mobility_advanced_dataset.csv")
     df.to_csv(output_csv, index=False)
