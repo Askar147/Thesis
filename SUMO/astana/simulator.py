@@ -83,9 +83,11 @@ BASE_STATIONS = [
     {"id": "BS63", "pos": (2156.81, 1777.53), "radius": 457.11},
     {"id": "BS64", "pos": (1076.36, 2344.15), "radius": 477.28}
 ]
+# Each base station is assumed to manage a fixed pool of 20 nodes.
+NODES_PER_BS = 20
 
 # -------------------------------
-# Advanced Latency Model Parameters
+# Advanced Latency Model Parameters (placeholders)
 # -------------------------------
 PROCESSING_DELAY = 0.5         # seconds constant processing delay
 PROPAGATION_FACTOR = 0.001     # seconds per meter
@@ -120,6 +122,11 @@ SCENARIO_RESULT_SIZES = {
     9: 450
 }
 
+# Task deadline parameters (in seconds)
+# For simplicity, we generate a random deadline between 2 and 6 seconds for each task.
+def generate_deadline():
+    return random.uniform(2, 6)
+
 # -------------------------------
 # Helper Functions
 # -------------------------------
@@ -127,7 +134,7 @@ def euclidean_distance(pos1, pos2):
     return math.sqrt((pos1[0] - pos2[0]) ** 2 + (pos1[1] - pos2[1]) ** 2)
 
 def compute_transmission_delay(data_size):
-    # Assume BANDWIDTH = 10 Mbps -> 10*125 = 1250 KB/s
+    # Assume BANDWIDTH = 10 Mbps => 10 * 125 = 1250 KB/s.
     return data_size / (10 * 125)
 
 def count_vehicles_in_coverage(vehicle_pos, radius):
@@ -148,20 +155,13 @@ def compute_latency(distance, vehicle_pos, data_size):
     return tx_delay + prop_delay + interference_delay + PROCESSING_DELAY + noise
 
 def compute_return_latency(distance, vehicle_pos, result_data_size):
-    """
-    Compute latency for returning the computed result.
-    This includes:
-      - Transmission delay for result data
-      - Propagation delay based on distance
-      - (Optionally) additional processing delay if needed (here, assumed negligible)
-    """
     tx_return_delay = compute_transmission_delay(result_data_size)
-    prop_return_delay = distance * PROPAGATION_FACTOR  # Use same propagation factor
-    noise = random.uniform(0, NOISE_FACTOR / 2)  # Less noise for smaller result data
+    prop_return_delay = distance * PROPAGATION_FACTOR
+    noise = random.uniform(0, NOISE_FACTOR / 2)
     return tx_return_delay + prop_return_delay + noise
 
 def compute_energy(latency):
-    # Placeholder energy model: energy as a function of latency
+    # Placeholder energy model
     return latency * 0.2
 
 def get_nearest_bs(vehicle_pos):
@@ -180,17 +180,75 @@ def assign_scenario():
     return random.randint(0, 9)
 
 # -------------------------------
+# Base Station & Node Classes
+# -------------------------------
+class Node:
+    def __init__(self, node_id):
+        self.node_id = node_id
+        self.busy_until = 0  # Time until which node is busy
+
+    def is_available(self, current_time):
+        return current_time >= self.busy_until
+
+    def assign_task(self, current_time, processing_time):
+        self.busy_until = current_time + processing_time
+
+class BaseStation:
+    def __init__(self, bs_info):
+        self.bs_id = bs_info["id"]
+        self.pos = bs_info["pos"]
+        self.radius = bs_info["radius"]
+        # Initialize a fixed pool of nodes
+        self.nodes = [Node(f"{self.bs_id}_Node_{i}") for i in range(NODES_PER_BS)]
+        self.queue = []  # Queue of tasks waiting for processing
+
+    def assign_task(self, task, current_time):
+        # Try to find an available node
+        available_nodes = [node for node in self.nodes if node.is_available(current_time)]
+        if available_nodes:
+            # Choose the node with the smallest busy_until value (earliest available)
+            chosen_node = min(available_nodes, key=lambda n: n.busy_until)
+            chosen_node.assign_task(current_time, task["processing_time"])
+            task["node_assigned"] = chosen_node.node_id
+            task["waiting_time"] = 0
+            task["status"] = "assigned"
+            return True
+        else:
+            # No nodes available, enqueue task
+            self.queue.append(task)
+            task["status"] = "queued"
+            return False
+
+    def process_queue(self, current_time):
+        # Check queued tasks and try to assign them
+        still_queued = []
+        for task in self.queue:
+            # Check if task's waiting time exceeds its deadline; if yes, mark it as rejected
+            waiting_time = current_time - task["arrival_time"]
+            if waiting_time > task["deadline"]:
+                task["status"] = "rejected"
+                task["waiting_time"] = waiting_time
+            else:
+                assigned = self.assign_task(task, current_time)
+                if not assigned:
+                    still_queued.append(task)
+        self.queue = still_queued
+
+# Create a dictionary for base stations keyed by BS id.
+BASE_STATION_INSTANCES = {bs["id"]: BaseStation(bs) for bs in BASE_STATIONS}
+
+# -------------------------------
 # Main Simulation Function
 # -------------------------------
 def run_simulation():
     random.seed(42)
-    sumoBinary = sumolib.checkBinary('sumo')  # Use 'sumo-gui' for visualization
+    sumoBinary = sumolib.checkBinary('sumo')  # Use 'sumo-gui' if you prefer visualization
     traci.start([sumoBinary, "--ignore-route-errors", "-c", SUMO_CONFIG])
     
     last_bs_assignment = {}
     data_log = []
-    
     simulation_step = 0
+
     while traci.simulation.getMinExpectedNumber() > 0 and simulation_step < SIMULATION_DURATION:
         traci.simulationStep()
         vehicle_ids = traci.vehicle.getIDList()
@@ -198,27 +256,29 @@ def run_simulation():
         for veh in vehicle_ids:
             pos = traci.vehicle.getPosition(veh)
             speed = traci.vehicle.getSpeed(veh)
-            bs_id, distance, in_coverage = get_nearest_bs(pos)
             
-            # Assign a scenario ID and fetch data sizes for input and result
+            # Determine nearest base station for offloading
+            bs_id, distance, in_coverage = get_nearest_bs(pos)
+            bs_instance = BASE_STATION_INSTANCES[bs_id]
+            
+            # Assign scenario and fetch corresponding data sizes
             scenario_id = assign_scenario()
             data_size = SCENARIO_DATA_SIZES.get(scenario_id, 1000)
             result_size = SCENARIO_RESULT_SIZES.get(scenario_id, 200)
             
-            # Compute latency for sending the task
+            # Compute send and return latency
             send_latency = compute_latency(distance, pos, data_size)
-            # Compute latency for returning the result
             return_latency = compute_return_latency(distance, pos, result_size)
-            # Total round-trip latency
             total_latency = send_latency + return_latency
             
-            energy = compute_energy(total_latency)
+            # For simplicity, assume processing time is total_latency
+            processing_time = total_latency
             
-            prev_bs = last_bs_assignment.get(veh)
-            handover = (prev_bs is not None and prev_bs != bs_id)
-            last_bs_assignment[veh] = bs_id
+            # Generate a random deadline for this task (in seconds)
+            deadline = generate_deadline()
             
-            data_log.append({
+            # Create task object
+            task = {
                 "time": simulation_step,
                 "vehicle_id": veh,
                 "vehicle_x": pos[0],
@@ -230,17 +290,45 @@ def run_simulation():
                 "send_latency": send_latency,
                 "return_latency": return_latency,
                 "total_latency": total_latency,
-                "energy": energy,
+                "energy": compute_energy(total_latency),
                 "scenario_id": scenario_id,
                 "data_size": data_size,
-                "result_size": result_size
-            })
+                "result_size": result_size,
+                "deadline": deadline,
+                "arrival_time": simulation_step,
+                "processing_time": processing_time,
+                "waiting_time": 0,
+                "node_assigned": None,
+                "status": "new"
+            }
+            
+            # Base station decision: attempt to assign task immediately
+            assigned = bs_instance.assign_task(task, simulation_step)
+            if not assigned:
+                # If not assigned, task is queued; waiting time will be updated later.
+                pass
+            
+            # Handover detection: if previous assignment differs
+            prev_bs = last_bs_assignment.get(veh)
+            handover = (prev_bs is not None and prev_bs != bs_id)
+            last_bs_assignment[veh] = bs_id
+            
+            # Add handover flag to task for logging
+            task["handover"] = handover
+            
+            data_log.append(task)
+        
+        # At each simulation step, process the queue for each base station
+        for bs_instance in BASE_STATION_INSTANCES.values():
+            bs_instance.process_queue(simulation_step)
         
         simulation_step += TIME_STEP
-    
+
     traci.close()
+    
+    # Save the collected data log into a CSV file
     df = pd.DataFrame(data_log)
-    output_csv = os.path.join(os.getcwd(), "urban_mobility_advanced_dataset.csv")
+    output_csv = os.path.join(os.getcwd(), "urban_mobility_advanced_dataset_with_queue.csv")
     df.to_csv(output_csv, index=False)
     print("Simulation finished. Data saved to:", output_csv)
 
