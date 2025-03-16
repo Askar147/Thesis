@@ -25,7 +25,7 @@ nodes = np.array(nodes)
 print(f"Extracted {len(nodes)} nodes from the network.")
 
 # Decide on the number of base stations (e.g., 3)
-num_bs = 64
+num_bs = 10
 
 # Apply k-means clustering to get base station locations
 kmeans = KMeans(n_clusters=num_bs, random_state=42).fit(nodes)
