@@ -144,7 +144,9 @@ class VECEnvironment(gym.Env):
         """Initialize SUMO if not already initialized"""
         if not self.sumo_initialized:
             sumoBinary = sumolib.checkBinary('sumo')  # or 'sumo-gui'
-            traci.start([sumoBinary, "--ignore-route-errors", "-c", self.sumo_config])
+            traci.start([sumoBinary, "--ignore-route-errors",
+                          "--no-warnings", "--no-step-log", 
+                          "-c", self.sumo_config])
             self.sumo_initialized = True
     
     def reset(self):

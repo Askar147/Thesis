@@ -1,0 +1,23 @@
+https://www.techpowerup.com/gpu-specs/jetson-nano.c3643
+Memory
+Memory Size
+4 GB
+Memory Type
+LPDDR4
+Memory Bus
+64 bit
+Bandwidth
+25.60 GB/s
+
+Clock Speeds
+Base Clock
+640 MHz
+Boost Clock
+921 MHz
+Memory Clock
+1600 MHz
+3.2 Gbps effective
+
+
+
+4855b4006e87 is a scneario 1, 04463a03fa97 = scenario 2, e028f7bc7379 = scenario 3, cd32d74a79a2 scenario 4, 20b09d247631 is scenario 5, 34fa6c934d4c scenario 6,  dceb7961b8aa scenario 7, 095d68607caf scenario 8, 517431f3aa6d scenario 9, 68fecb8e6b49 scenario 10
