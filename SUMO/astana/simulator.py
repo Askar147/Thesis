@@ -106,60 +106,97 @@ def get_nearest_bs(vehicle_pos):
 
 def assign_scenario():
     return random.randint(0, 9)
+# Maximum number of tasks a node can run concurrently.
+MAX_CONCURRENT_TASKS = 4
+
+IDLE_THRESHOLD = 10            # If a node is idle for more than 10 simulation seconds, it is turned off
+
+NODES_PER_BS = 20
+MIN_ACTIVE_NODES = 10  # Minimum nodes that remain active per BS
+
+# (Other constants such as latency model parameters, data sizes, etc. remain unchanged)
 
 # -------------------------------
-# Node and BaseStation Classes
+# Revised Node and BaseStation Classes
 # -------------------------------
+
 class Node:
     def __init__(self, node_id, active=True):
         self.node_id = node_id
-        self.busy_until = 0
-        self.active = active
+        self.active_tasks = []  # List of task finish times (in simulation time)
+        self.active = active    # True if node is active (online); False if idle/offline
+        self.idle_since = None  # Timestamp when node became idle (if no active tasks)
+
+    def update_tasks(self, current_time):
+        # Remove finished tasks
+        self.active_tasks = [end_time for end_time in self.active_tasks if current_time < end_time]
+        # Update idle_since: if no tasks are running and not already marked
+        if len(self.active_tasks) == 0 and self.idle_since is None:
+            self.idle_since = current_time
+        elif len(self.active_tasks) > 0:
+            self.idle_since = None
+
+    def available_slots(self, current_time):
+        self.update_tasks(current_time)
+        return MAX_CONCURRENT_TASKS - len(self.active_tasks)
 
     def is_available(self, current_time):
-        return self.active and current_time >= self.busy_until
+        # Node is available if it is active and has at least one free slot.
+        self.update_tasks(current_time)
+        return self.active and (self.available_slots(current_time) > 0)
 
     def assign_task(self, current_time, processing_time):
-        self.busy_until = current_time + processing_time
+        finish_time = current_time + processing_time
+        self.active_tasks.append(finish_time)
+        # When a task is assigned, the node is no longer idle.
+        self.idle_since = None
+        # (Optional) Logging:
+        # print(f"Node {self.node_id} now running {len(self.active_tasks)}/{MAX_CONCURRENT_TASKS} tasks.")
 
 class BaseStation:
     def __init__(self, bs_info):
         self.bs_id = bs_info["id"]
         self.pos = bs_info["pos"]
         self.radius = bs_info["radius"]
-        # First MIN_ACTIVE_NODES active, rest idle.
-        self.nodes = [Node(f"{self.bs_id}_Node_{i}", active=(i < MIN_ACTIVE_NODES)) for i in range(NODES_PER_BS)]
-        self.queue = []  # Tasks waiting for an active node.
-        self.wake_threshold = 1.5  # seconds
+        # Initialize nodes: first MIN_ACTIVE_NODES active, others are idle (available via Wake-on-LAN)
+        self.nodes = [Node(f"{self.bs_id}_Node_{i}", active=(i < MIN_ACTIVE_NODES))
+                      for i in range(NODES_PER_BS)]
+        self.queue = []  # List of tasks waiting for an active node.
+        self.wake_threshold = 1.5  # seconds, for waking up an idle node
 
     def assign_task(self, task, current_time):
-        # If the queue is too long, immediately reject the new task.
+        # If queue is too long, reject immediately.
         if len(self.queue) >= MAX_QUEUE_LENGTH:
             task["status"] = "rejected"
             task["waiting_time"] = 0
             return False
 
+        # Find all active nodes with at least one available slot.
         available_nodes = [node for node in self.nodes if node.is_available(current_time)]
         if available_nodes:
-            chosen_node = min(available_nodes, key=lambda n: n.busy_until)
+            # Choose the node with the fewest active tasks.
+            chosen_node = min(available_nodes, key=lambda n: len(n.active_tasks))
             chosen_node.assign_task(current_time, task["processing_time"])
             task["node_assigned"] = chosen_node.node_id
             task["waiting_time"] = 0
             task["status"] = "assigned"
             return True
         else:
+            # No node has available capacity; enqueue the task.
             self.queue.append(task)
             task["status"] = "queued"
             return False
 
     def wake_idle_node(self, current_time):
+        # Find an idle node (one that is turned off)
         idle_nodes = [node for node in self.nodes if not node.active]
         if idle_nodes:
             node_to_wake = idle_nodes[0]
             node_to_wake.active = True
+            # Simulate wake-on-LAN delay:
             wake_delay = random.uniform(0.5, 1.5)
-            node_to_wake.busy_until = current_time + wake_delay
-            print(f"[{self.bs_id}] Woke node {node_to_wake.node_id} at time {current_time} (delay {wake_delay:.2f}s)")
+            node_to_wake.assign_task(current_time, wake_delay)
+            print(f"[{self.bs_id}] Woke node {node_to_wake.node_id} at time {current_time} (wake delay {wake_delay:.2f}s)")
             return node_to_wake.node_id
         return None
 
@@ -173,7 +210,7 @@ class BaseStation:
 
             waiting_time = current_time - task["arrival_time"]
             if waiting_time > task["deadline"]:
-                task["status"] = "rejected"
+                task["status"] = "dropped"
                 task["waiting_time"] = waiting_time
             else:
                 if self.assign_task(task, current_time):
@@ -182,13 +219,29 @@ class BaseStation:
                     new_queue.append(task)
         self.queue = new_queue
 
+        # Wake an idle node if average waiting time is too high.
         if self.queue:
             avg_wait = sum(current_time - t["arrival_time"] for t in self.queue) / len(self.queue)
             if avg_wait > self.wake_threshold:
                 self.wake_idle_node(current_time)
 
-# Create dictionary of base station instances.
+        # Now, add logic to turn off active nodes that have been idle for too long.
+        for node in self.nodes:
+            node.update_tasks(current_time)
+            # If node is active, has no running tasks, and has been idle longer than threshold,
+            # and if it is not one of the minimum required active nodes, turn it off.
+            if node.active and len(node.active_tasks) == 0 and node.idle_since is not None:
+                idle_time = current_time - node.idle_since
+                if idle_time > IDLE_THRESHOLD:
+                    # Check how many nodes are still active.
+                    active_nodes = [n for n in self.nodes if n.active]
+                    if len(active_nodes) > MIN_ACTIVE_NODES:
+                        node.active = False
+                        print(f"[{self.bs_id}] Turning off node {node.node_id} due to idleness (idle {idle_time:.2f}s)")
+
+# Build BaseStation instances dictionary.
 BASE_STATION_INSTANCES = {bs["id"]: BaseStation(bs) for bs in BASE_STATIONS}
+
 
 # -------------------------------
 # Main Simulation Function
