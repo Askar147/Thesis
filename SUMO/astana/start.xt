@@ -1,0 +1,10 @@
+python vec-transformer-main.py --mode train --config vec-transformer-config.json
+python vec-transformer-main.py --mode evaluate --config vec-transformer-config.json
+python vec-transformer-main.py --mode compare --config vec-transformer-config.json
+
+
+python vec_main.py --mode train --config config.json
+
+python vec_main.py --mode evaluate --config config.json
+
+python vec_main.py --mode compare --config config.json

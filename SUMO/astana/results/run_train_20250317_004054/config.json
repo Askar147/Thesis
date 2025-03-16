@@ -1,0 +1,27 @@
+{
+    "environment": {
+        "sumo_config": "astana.sumocfg",
+        "simulation_duration": 300,
+        "time_step": 1,
+        "queue_process_interval": 5,
+        "max_queue_length": 50,
+        "history_length": 10,
+        "energy_csv_path": null,
+        "energy_weight": 0.5,
+        "seed": 42
+    },
+    "agent": {
+        "num_episodes": 1000,
+        "max_steps": 500,
+        "target_update_frequency": 10,
+        "load_model": null
+    },
+    "evaluation": {
+        "episodes": 10,
+        "seed": 123,
+        "render": false
+    },
+    "compare": {
+        "models": []
+    }
+}
