@@ -1,0 +1,34 @@
+{
+    "environment": {
+      "sumo_config": "astana.sumocfg",
+      "simulation_duration": 300,
+      "time_step": 1,
+      "queue_process_interval": 5,
+      "max_queue_length": 50,
+      "history_length": 10,
+      "energy_csv_path": "merged_dag1.csv",
+      "energy_weight": 0.5,
+      "seed": 42
+    },
+    "training": {
+        "num_episodes": 1000,
+        "max_steps": 300,
+        "eval_frequency": 50
+      },
+    "evaluation": {
+      "episodes": 20,
+      "seed": 123
+    },
+    "compare": {
+      "models": [
+        {
+          "name": "DQN",
+          "path": "results\\run_train_20250317_004054\\run_20250317_004057\\model_episode_1000.pth"
+        },
+        {
+          "name": "Transformer",
+          "path": "transformer_results\\run_20250317_005431\\transformer_model_final.pt"
+        }
+      ]
+    }
+  }
