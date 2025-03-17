@@ -1,0 +1,30 @@
+{
+    "Avg Reward": {
+        "DQN": 220.66519705391022,
+        "Transformer": 222.11910760085763,
+        "Difference": 1.4539105469474123,
+        "Improvement_percent": 0.6588762371042185,
+        "Transformer_is_better": true
+    },
+    "Completion Rate": {
+        "DQN": 1.0,
+        "Transformer": 0.9965,
+        "Difference": -0.0034999999999999476,
+        "Improvement_percent": -0.34999999999999476,
+        "Transformer_is_better": false
+    },
+    "Latency": {
+        "DQN": 1.862217995069771,
+        "Transformer": 1.830575522383868,
+        "Difference": -0.031642472685903034,
+        "Improvement_percent": 1.6991819845837919,
+        "Transformer_is_better": true
+    },
+    "Energy": {
+        "DQN": 18.622179950697713,
+        "Transformer": 18.305755223838677,
+        "Difference": -0.31642472685903655,
+        "Improvement_percent": 1.6991819845838247,
+        "Transformer_is_better": true
+    }
+}
