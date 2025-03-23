@@ -8,16 +8,9 @@ import traci
 import sumolib
 import math
 import os
-from energy_model import EnergyModel  # Import our energy model
+from energy_model import EnergyModel 
 
 class VECEnvironment(gym.Env):
-    """
-    Vehicular Edge Computing Environment that simulates task offloading decisions
-    between mobile vehicles (MVs) and edge servers (ESs) at base stations.
-    This environment uses SUMO for vehicle mobility simulation and includes
-    energy consumption modeling.
-    """
-    
     def __init__(self, 
                  sumo_config="astana.sumocfg",
                  simulation_duration=60,
