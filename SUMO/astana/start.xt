@@ -8,3 +8,6 @@ python vec_main.py --mode train --config config.json
 python vec_main.py --mode evaluate --config config.json
 
 python vec_main.py --mode compare --config config.json
+
+
+python "C:\Program Files (x86)\Eclipse\Sumo\tools\randomTrips.py" -n astana.net.xml -o astana.rou.xml -e 600 -p 1.5 --seed 26
