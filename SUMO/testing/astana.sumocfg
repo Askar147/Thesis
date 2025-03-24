@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Input Section: Specify the network and route files -->
+    <input>
+        <net-file value="astana.net.xml"/>
+        <route-files value="astana.rou.xml"/>
+    </input>
+
+    <!-- Time Section: Configure simulation start, end, and step-length -->
+    <time>
+        <begin value="0"/>
+        <end value="3600"/>
+        <step-length value="1"/>
+    </time>
+
+    <!-- Optional Output Section: Define output files if needed -->
+    <output>
+        <!-- For example, you could save simulation state every step: -->
+        <summary value="simulation_summary.xml"/>
+    </output>
+
+    <!-- Reporting Options -->
+    <report>
+        <verbose value="true"/>
+        <no-step-log value="true"/>
+    </report>
+</configuration>
