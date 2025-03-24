@@ -3,22 +3,21 @@ import pandas as pd
 import re
 from collections import deque
 
-class EnhancedEnergyModel:
-    """Enhanced energy consumption model for VEC tasks based on real-world data"""
+class EnergyModel:
     
     def __init__(self, csv_path=None):
         # Container ID to scenario mapping
         self.container_to_scenario = {
-            "4855b4006e87": 1,  # Linear Chain Scenario (15 sequential tasks)
-            "04463a03fa97": 2,  # Fork and Merge Scenario
-            "e028f7bc7379": 3,  # Parallel Tasks Scenario (5 parallel tasks)
-            "cd32d74a79a2": 4,  # Sequential with Branching Scenario
-            "20b09d247631": 5,  # Complex Merge Scenario
-            "34fa6c934d4c": 6,  # Double Fork Scenario
-            "dceb7961b8aa": 7,  # Loop Replanning Scenario
-            "095d68607caf": 8,  # High Parallelism Scenario (30 parallel tasks)
-            "517431f3aa6d": 9,  # Mixed Workload Scenario
-            "68fecb8e6b49": 10   # Extended DAG Scenario
+            "4855b4006e87": 1,  
+            "04463a03fa97": 2,  
+            "e028f7bc7379": 3,  
+            "cd32d74a79a2": 4,  
+            "20b09d247631": 5,  
+            "34fa6c934d4c": 6,  
+            "dceb7961b8aa": 7,  
+            "095d68607caf": 8,  
+            "517431f3aa6d": 9,  
+            "68fecb8e6b49": 10   
         }
         
         
