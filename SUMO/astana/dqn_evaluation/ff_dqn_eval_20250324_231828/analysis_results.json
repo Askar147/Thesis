@@ -1,0 +1,198 @@
+{
+    "normal": {
+        "scenario": "normal",
+        "rewards": [
+            237.13253627905107,
+            237.08107833962833,
+            237.73240029907004
+        ],
+        "avg_reward": 237.31533830591647,
+        "std_reward": 0.2956546515585618,
+        "task_counts": [
+            0,
+            0,
+            0
+        ],
+        "avg_task_count": 0.0,
+        "completion_rates": [
+            0.9966666666666667,
+            0.9966666666666667,
+            0.9966666666666667
+        ],
+        "avg_completion_rate": 0.9966666666666667,
+        "std_completion_rate": 0.0,
+        "rejection_rates": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "avg_rejection_rate": 0.0,
+        "drop_rates": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "avg_drop_rate": 0.0,
+        "latencies": [
+            1.8193353888830317,
+            1.8138463609992512,
+            1.822663139581759
+        ],
+        "avg_latency": 1.8186149631546806,
+        "std_latency": 0.0036353043032456398,
+        "energy_consumptions": [
+            5426.351652547437,
+            5423.424805849385,
+            5403.092297317857
+        ],
+        "avg_energy": 5417.622918571559,
+        "std_energy": 10.34394584325842
+    },
+    "high_load": {
+        "scenario": "high_load",
+        "rewards": [
+            237.13253627905107,
+            238.30193202832078,
+            238.18670326743833
+        ],
+        "avg_reward": 237.87372385827007,
+        "std_reward": 0.5262057186595425,
+        "task_counts": [
+            0,
+            0,
+            0
+        ],
+        "avg_task_count": 0.0,
+        "completion_rates": [
+            0.9966666666666667,
+            1.0,
+            1.0
+        ],
+        "avg_completion_rate": 0.9988888888888888,
+        "std_completion_rate": 0.0015713484026367562,
+        "rejection_rates": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "avg_rejection_rate": 0.0,
+        "drop_rates": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "avg_drop_rate": 0.0,
+        "latencies": [
+            1.8193353888830317,
+            1.7924632894636745,
+            1.8547643371100928
+        ],
+        "avg_latency": 1.8221876718189332,
+        "std_latency": 0.025514136903817933,
+        "energy_consumptions": [
+            5426.351652547437,
+            5401.8035821314215,
+            5452.486256129196
+        ],
+        "avg_energy": 5426.880496936018,
+        "std_energy": 20.694493924418047
+    },
+    "low_latency": {
+        "scenario": "low_latency",
+        "rewards": [
+            234.0909574008614,
+            234.00720889887728,
+            234.8377296079695
+        ],
+        "avg_reward": 234.3119653025694,
+        "std_reward": 0.3733403554584671,
+        "task_counts": [
+            0,
+            0,
+            0
+        ],
+        "avg_task_count": 0.0,
+        "completion_rates": [
+            0.9966666666666667,
+            0.9966666666666667,
+            0.9966666666666667
+        ],
+        "avg_completion_rate": 0.9966666666666667,
+        "std_completion_rate": 0.0,
+        "rejection_rates": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "avg_rejection_rate": 0.0,
+        "drop_rates": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "avg_drop_rate": 0.0,
+        "latencies": [
+            1.8193353888830317,
+            1.8138463609992512,
+            1.822663139581759
+        ],
+        "avg_latency": 1.8186149631546806,
+        "std_latency": 0.0036353043032456398,
+        "energy_consumptions": [
+            5426.351652547437,
+            5423.424805849385,
+            5403.092297317857
+        ],
+        "avg_energy": 5417.622918571559,
+        "std_energy": 10.34394584325842
+    },
+    "energy_efficient": {
+        "scenario": "energy_efficient",
+        "rewards": [
+            240.17411515724112,
+            240.1549477803794,
+            240.62707099017075
+        ],
+        "avg_reward": 240.31871130926376,
+        "std_reward": 0.2181835873612545,
+        "task_counts": [
+            0,
+            0,
+            0
+        ],
+        "avg_task_count": 0.0,
+        "completion_rates": [
+            0.9966666666666667,
+            0.9966666666666667,
+            0.9966666666666667
+        ],
+        "avg_completion_rate": 0.9966666666666667,
+        "std_completion_rate": 0.0,
+        "rejection_rates": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "avg_rejection_rate": 0.0,
+        "drop_rates": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "avg_drop_rate": 0.0,
+        "latencies": [
+            1.8193353888830317,
+            1.8138463609992512,
+            1.822663139581759
+        ],
+        "avg_latency": 1.8186149631546806,
+        "std_latency": 0.0036353043032456398,
+        "energy_consumptions": [
+            5426.351652547437,
+            5423.424805849385,
+            5403.092297317857
+        ],
+        "avg_energy": 5417.622918571559,
+        "std_energy": 10.34394584325842
+    }
+}
