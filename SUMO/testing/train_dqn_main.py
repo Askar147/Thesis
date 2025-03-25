@@ -55,7 +55,7 @@ def main():
             'noise_floor': -95
         },
         'min_tasks_per_step': 1,
-        'max_tasks_per_step': 5,
+        'max_tasks_per_step': 20,
         'task_generation_probability': 0.8,
         'seed': args.seed
     }
