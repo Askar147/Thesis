@@ -25,7 +25,7 @@ def main():
                         help='Weight for energy consumption in reward (0.0-1.0)')
     parser.add_argument('--episodes', type=int, default=1000,
                         help='Number of training episodes')
-    parser.add_argument('--max_steps', type=int, default=500,
+    parser.add_argument('--max_steps', type=int, default=5000,
                         help='Maximum steps per episode')
     parser.add_argument('--duration', type=int, default=300,
                         help='Simulation duration in seconds')
@@ -62,9 +62,9 @@ def main():
             'bandwidth': 20,
             'noise_floor': -95
         },
-        'min_tasks_per_step': 1,
+        'min_tasks_per_step': 10,
         'max_tasks_per_step': 20,
-        'task_generation_probability': 0.8,
+        'task_generation_probability': 1,
         'seed': args.seed
     }
     

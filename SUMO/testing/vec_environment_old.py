@@ -41,7 +41,7 @@ class VECEnvironment(gym.Env):
         self.history_length = history_length
         self.energy_weight = energy_weight
         
-        # Task generation parameters
+        # New parameters for stochastic task generation
         self.min_tasks_per_step = min_tasks_per_step
         self.max_tasks_per_step = max_tasks_per_step
         self.task_generation_probability = task_generation_probability
@@ -75,7 +75,6 @@ class VECEnvironment(gym.Env):
         self.max_concurrent_tasks = 5  
         self.idle_threshold = 10  
         
-        # Action space remains the same - assign to a node or wake up a node
         self.action_space = spaces.Discrete(self.nodes_per_bs + 1)
         
         self.observation_space = spaces.Dict({
@@ -107,22 +106,16 @@ class VECEnvironment(gym.Env):
         self.simulation_step = 0
         self.last_bs_assignment = {}
         
-        # Performance metrics
         self.task_completion_history = deque(maxlen=100)
         self.task_rejection_history = deque(maxlen=100)
         self.task_drop_history = deque(maxlen=100)
         self.latency_history = deque(maxlen=100)
         self.energy_consumption_history = deque(maxlen=100)
         
-        # Current task being processed
         self.current_task = None
         self.current_bs = None
         self.current_vehicle = None
         
-        # NEW: Task queue to store pending tasks
-        self.pending_tasks = []  # List of (task, bs_instance, vehicle_id) tuples
-        
-        # Load history for each base station
         self.load_history = {bs_id: deque(maxlen=self.history_length) for bs_id in [bs["id"] for bs in self.base_stations]}
         for bs_id in self.load_history:
             for _ in range(self.history_length):
@@ -150,7 +143,6 @@ class VECEnvironment(gym.Env):
         for bs_id, bs_instance in self.base_station_instances.items():
             bs_instance.reset()
         
-        # Clear all history and metrics
         self.task_completion_history.clear()
         self.task_rejection_history.clear()
         self.task_drop_history.clear()
@@ -164,19 +156,6 @@ class VECEnvironment(gym.Env):
         if hasattr(self, 'latency_model'):
             self.latency_model.reset_history()
         
-        # Clear pending tasks
-        self.pending_tasks = []
-        self.current_task = None
-        self.current_bs = None
-        self.current_vehicle = None
-        
-        # Generate initial tasks by simulating forward
-        self._advance_simulation()
-        
-        # Get the first task from pending queue if available
-        self._get_next_task()
-        
-        # Return observation
         obs = self._get_observation()
         
         return obs
@@ -244,18 +223,8 @@ class VECEnvironment(gym.Env):
         if not self.sumo_initialized:
             self.initialize_sumo()
         
-        # If no current task, get the next one
         if self.current_task is None or self.current_bs is None:
-            # Generate more tasks if needed
-            if not self.pending_tasks:
-                self._advance_simulation()
-            
-            # Get the next task
-            has_task = self._get_next_task()
-            
-            # If still no task, simulation must be done
-            if not has_task:
-                return self._get_observation(), 0, True, {}
+            return self._simulate_and_get_new_task()
         
         bs_instance = self.base_station_instances[self.current_bs.bs_id]
         
@@ -263,9 +232,7 @@ class VECEnvironment(gym.Env):
         info = {}
         energy_consumption = 0
         
-        # Process the action
         if action == self.nodes_per_bs:
-            # Wake up an idle node
             woken_node = bs_instance.wake_idle_node(self.simulation_step)
             if woken_node:
                 info['woken_node'] = woken_node
@@ -275,8 +242,9 @@ class VECEnvironment(gym.Env):
                 reward += wake_reward
             else:
                 reward -= 0.5
+                
+            return self._simulate_and_get_new_task(reward_offset=reward, energy_offset=energy_consumption)
         else:
-            # Handle invalid actions
             if action < 0 or action >= self.nodes_per_bs:
                 action = 0
             
@@ -284,13 +252,11 @@ class VECEnvironment(gym.Env):
             task["node_assigned"] = f"{self.current_bs.bs_id}_Node_{action}"
             
             if not bs_instance.nodes[action].active:
-                # Trying to assign to inactive node
                 reward -= 1.0
                 task["status"] = "rejected"
                 task["waiting_time"] = 0
                 self.task_rejection_history.append(1)
             else:
-                # Get the node and calculate processing details
                 node = bs_instance.nodes[action]
                 node_capacity = 500
                 node_load = len(node.active_tasks) / node.max_concurrent_tasks
@@ -303,7 +269,6 @@ class VECEnvironment(gym.Env):
                 total_latency = task["send_latency"] + processing_time + task["return_latency"]
                 task["total_latency"] = total_latency
                 
-                # Try to assign to the node
                 success = bs_instance.assign_task(task, self.simulation_step)
                 if success:
                     task["status"] = "assigned"
@@ -319,7 +284,6 @@ class VECEnvironment(gym.Env):
                     self.energy_consumption_history.append(energy_consumption)
                     self.latency_history.append(total_latency)
                     
-                    # Calculate reward components (unchanged from original)
                     latency_weight = 1.0 - self.energy_weight
                     
                     normalized_latency = min(1.0, total_latency / task["deadline"])
@@ -337,89 +301,12 @@ class VECEnvironment(gym.Env):
                     task["status"] = "queued"
                     reward -= 0.2
         
-        # Update load history
         node_loads = np.array([len(node.active_tasks) / self.max_concurrent_tasks for node in bs_instance.nodes], dtype=np.float32)
         self.load_history[self.current_bs.bs_id].append(node_loads)
         
-        # Process queues periodically
-        if self.simulation_step % self.queue_process_interval == 0:
-            for bs_id, bs_instance in self.base_station_instances.items():
-                tasks_to_process = random.randint(1, 5)  # Randomize queue processing
-                bs_instance.process_queue(self.simulation_step, tasks_to_process)
-        
-        # Clear current task
-        self.current_task = None
-        self.current_bs = None
-        self.current_vehicle = None
-        
-        # Get next pending task if available
-        has_next_task = self._get_next_task()
-        
-        # If no more pending tasks, advance simulation to get more
-        if not has_next_task:
-            self._advance_simulation()
-            has_next_task = self._get_next_task()
-        
-        # Get observation for the next task
-        next_obs = self._get_observation()
-        
-        # Calculate idle energy between tasks
-        idle_energy = 0
-        for bs_id, bs_instance in self.base_station_instances.items():
-            idle_energy += bs_instance.calculate_idle_energy(self.energy_model, self.time_step)
-        
-        # Check if episode is done
-        done = self.simulation_step >= self.simulation_duration or traci.simulation.getMinExpectedNumber() <= 0
-        
-        # Compile info dictionary
-        info = {
-            'simulation_step': self.simulation_step,
-            'task_completion_rate': np.mean(list(self.task_completion_history)) if self.task_completion_history else 0,
-            'task_rejection_rate': np.mean(list(self.task_rejection_history)) if self.task_rejection_history else 0,
-            'task_drop_rate': np.mean(list(self.task_drop_history)) if self.task_drop_history else 0,
-            'avg_latency': np.mean(list(self.latency_history)) if self.latency_history else 0,
-            'avg_energy_consumption': np.mean(list(self.energy_consumption_history)) if self.energy_consumption_history else 0,
-            'energy_consumption': energy_consumption,
-            'idle_energy': idle_energy,
-            'pending_tasks': len(self.pending_tasks),
-            'total_queued_tasks': sum(len(bs.queue) for bs in self.base_station_instances.values()),
-            'avg_uplink_latency': self.latency_model.get_average_latency(window=10) if hasattr(self, 'latency_model') and self.latency_model.latency_history else 0,
-            'avg_data_rate': np.mean(list(self.latency_model.datarate_history))/(1e6) if hasattr(self, 'latency_model') and self.latency_model.datarate_history else 0,
-            'avg_idle_power': self.energy_model.get_idle_power() if hasattr(self, 'energy_model') else 0,
-        }
-        
-        return next_obs, reward, done, info
-    
-    def _get_next_task(self):
-        """Get the next task from pending tasks queue"""
-        if self.pending_tasks:
-            self.current_task, self.current_bs, self.current_vehicle = self.pending_tasks.pop(0)
-            return True
-        return False
-    
-    def _advance_simulation(self):
-        """Advance SUMO simulation and generate new tasks"""
-        # Advance simulation by one step
-        traci.simulationStep()
-        self.simulation_step += self.time_step
-        
-        # Generate new tasks from vehicles
-        vehicle_ids = traci.vehicle.getIDList()
-        if vehicle_ids:
-            # Determine number of tasks to generate
-            num_tasks = random.randint(self.min_tasks_per_step, self.max_tasks_per_step)
-            
-            # Try to generate tasks from different vehicles
-            sampled_vehicles = random.sample(vehicle_ids, min(num_tasks, len(vehicle_ids)))
-            for vehicle_id in sampled_vehicles:
-                task_data = self._generate_task(vehicle_id)
-                if task_data:
-                    task, bs_id = task_data
-                    bs_instance = self.base_station_instances[bs_id]
-                    self.pending_tasks.append((task, bs_instance, vehicle_id))
+        return self._simulate_and_get_new_task(reward_offset=reward, energy_offset=energy_consumption)
     
     def _generate_task(self, vehicle_id):
-        """Generate a task for a given vehicle"""
         pos = traci.vehicle.getPosition(vehicle_id)
         speed = traci.vehicle.getSpeed(vehicle_id)
         
@@ -483,8 +370,74 @@ class VECEnvironment(gym.Env):
         
         return task, nearest_bs
     
+    def _simulate_and_get_new_task(self, reward_offset=0.0, energy_offset=0.0):
+        traci.simulationStep()
+        self.simulation_step += self.time_step
+        
+        if self.simulation_step % self.queue_process_interval == 0:
+            for bs_instance in self.base_station_instances.values():
+                tasks_to_process = random.randint(1, 5)  # Randomize queue processing
+                bs_instance.process_queue(self.simulation_step, tasks_to_process)
+        
+        done = self.simulation_step >= self.simulation_duration or traci.simulation.getMinExpectedNumber() <= 0
+        
+        self.current_task = None
+        self.current_bs = None
+        self.current_vehicle = None
+        
+        reward = reward_offset
+        generated_tasks = []
+        
+        if not done:
+            vehicle_ids = traci.vehicle.getIDList()
+            
+            if vehicle_ids:
+                # Determine number of tasks to generate
+                num_tasks = random.randint(self.min_tasks_per_step, self.max_tasks_per_step)
+                
+                # Try to generate multiple tasks from different vehicles
+                sampled_vehicles = random.sample(vehicle_ids, min(num_tasks, len(vehicle_ids)))
+                for vehicle_id in sampled_vehicles:
+                    task_data = self._generate_task(vehicle_id)
+                    if task_data:
+                        task, bs_id = task_data
+                        bs_instance = self.base_station_instances[bs_id]
+                        generated_tasks.append((task, bs_instance, vehicle_id))
+                
+                # If we generated any tasks, select one for the agent to handle
+                if generated_tasks:
+                    self.current_task, self.current_bs, self.current_vehicle = generated_tasks[0]
+                    
+                    # Queue the other tasks automatically
+                    for task, bs, _ in generated_tasks[1:]:
+                        bs.queue.append(task)
+                        task["status"] = "queued"
+        
+        obs = self._get_observation()
+        
+        idle_energy = 0
+        for bs_id, bs_instance in self.base_station_instances.items():
+            idle_energy += bs_instance.calculate_idle_energy(self.energy_model, self.time_step)
+        
+        info = {
+            'simulation_step': self.simulation_step,
+            'task_completion_rate': np.mean(list(self.task_completion_history)) if self.task_completion_history else 0,
+            'task_rejection_rate': np.mean(list(self.task_rejection_history)) if self.task_rejection_history else 0,
+            'task_drop_rate': np.mean(list(self.task_drop_history)) if self.task_drop_history else 0,
+            'avg_latency': np.mean(list(self.latency_history)) if self.latency_history else 0,
+            'avg_energy_consumption': np.mean(list(self.energy_consumption_history)) if self.energy_consumption_history else 0,
+            'energy_consumption': energy_offset,
+            'idle_energy': idle_energy,
+            'tasks_generated': len(generated_tasks),
+            'total_queued_tasks': sum(len(bs.queue) for bs in self.base_station_instances.values()),
+            'avg_uplink_latency': self.latency_model.get_average_latency(window=10) if hasattr(self, 'latency_model') and self.latency_model.latency_history else 0,
+            'avg_data_rate': np.mean(list(self.latency_model.datarate_history))/(1e6) if hasattr(self, 'latency_model') and self.latency_model.datarate_history else 0,
+            'avg_idle_power': self.energy_model.get_idle_power() if hasattr(self, 'energy_model') else 0,
+        }
+        
+        return obs, reward, done, info
+    
     def _get_nearest_bs(self, vehicle_pos):
-        """Get the nearest base station to a vehicle position"""
         nearest_bs, min_dist, in_cov = None, float("inf"), False
         for bs in self.base_stations:
             dist = self._euclidean_distance(vehicle_pos, bs["pos"])
@@ -494,11 +447,9 @@ class VECEnvironment(gym.Env):
         return nearest_bs, min_dist, in_cov
     
     def _euclidean_distance(self, pos1, pos2):
-        """Calculate Euclidean distance between two positions"""
         return math.sqrt((pos1[0] - pos2[0]) ** 2 + (pos1[1] - pos2[1]) ** 2)
     
     def close(self):
-        """Close the environment"""
         if self.sumo_initialized:
             traci.close()
             self.sumo_initialized = False
