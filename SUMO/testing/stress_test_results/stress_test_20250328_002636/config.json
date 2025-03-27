@@ -1,0 +1,8 @@
+{
+    "ff_model_path": "best_model\\best_model.pth",
+    "te_model_path": "best_model\\best_model.pt",
+    "episodes": 3,
+    "max_steps": 300,
+    "task_intensity": "medium",
+    "timestamp": "20250328_002636"
+}

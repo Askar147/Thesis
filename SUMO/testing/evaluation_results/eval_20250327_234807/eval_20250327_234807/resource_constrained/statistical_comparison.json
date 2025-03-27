@@ -1,0 +1,96 @@
+{
+    "metrics": {
+        "rewards": {
+            "ff_dqn_mean": 125.76905090820576,
+            "te_dqn_mean": 137.10891826817974,
+            "difference": 11.33986735997398,
+            "percent_difference": 9.01642119272295
+        },
+        "completion_rates": {
+            "ff_dqn_mean": 1.0,
+            "te_dqn_mean": 1.0,
+            "difference": 0.0,
+            "percent_difference": 0.0
+        },
+        "rejection_rates": {
+            "ff_dqn_mean": 0.046,
+            "te_dqn_mean": 0.0,
+            "difference": -0.046,
+            "percent_difference": -100.0
+        },
+        "drop_rates": {
+            "ff_dqn_mean": 0.0,
+            "te_dqn_mean": 0.0,
+            "difference": 0.0,
+            "percent_difference": 0.0
+        },
+        "avg_latencies": {
+            "ff_dqn_mean": 49.44752240617864,
+            "te_dqn_mean": 49.16354130255839,
+            "difference": -0.2839811036202491,
+            "percent_difference": -0.5743080538748381
+        },
+        "energy_consumptions": {
+            "ff_dqn_mean": 891.6656252116057,
+            "te_dqn_mean": 957.2871027068708,
+            "difference": 65.62147749526503,
+            "percent_difference": 7.359426632566671
+        },
+        "wake_decisions": {
+            "ff_dqn_mean": 0.8,
+            "te_dqn_mean": 0.0,
+            "difference": -0.8,
+            "percent_difference": -100.0
+        },
+        "active_nodes_count": {
+            "ff_dqn_mean": 0.5,
+            "te_dqn_mean": 0.5,
+            "difference": 0.0,
+            "percent_difference": 0.0
+        }
+    },
+    "p_values": {
+        "rewards": 0.04386222230691123,
+        "completion_rates": NaN,
+        "rejection_rates": 0.15453713843293712,
+        "drop_rates": NaN,
+        "avg_latencies": 0.9467884842228074,
+        "energy_consumptions": 0.13127766905851168,
+        "wake_decisions": 0.06496937365680563,
+        "active_nodes_count": NaN
+    },
+    "significant_difference": {
+        "rewards": {
+            "is_significant": true,
+            "better_model": "TE-DQN"
+        },
+        "completion_rates": {
+            "is_significant": false,
+            "better_model": "No significant difference"
+        },
+        "rejection_rates": {
+            "is_significant": false,
+            "better_model": "No significant difference"
+        },
+        "drop_rates": {
+            "is_significant": false,
+            "better_model": "No significant difference"
+        },
+        "avg_latencies": {
+            "is_significant": false,
+            "better_model": "No significant difference"
+        },
+        "energy_consumptions": {
+            "is_significant": false,
+            "better_model": "No significant difference"
+        },
+        "wake_decisions": {
+            "is_significant": false,
+            "better_model": "No significant difference"
+        },
+        "active_nodes_count": {
+            "is_significant": false,
+            "better_model": "No significant difference"
+        }
+    }
+}

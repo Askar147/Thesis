@@ -1,0 +1,216 @@
+
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>VEC Model Evaluation Results</title>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 20px; }
+                h1, h2, h3 { color: #333; }
+                .container { max-width: 1200px; margin: 0 auto; }
+                .summary { margin-bottom: 30px; }
+                .scenario { margin-bottom: 50px; border: 1px solid #ddd; padding: 20px; border-radius: 5px; }
+                .scenario-title { color: #0066cc; }
+                .metrics-table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+                .metrics-table th, .metrics-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                .metrics-table tr:nth-child(even) { background-color: #f2f2f2; }
+                .metrics-table th { padding-top: 12px; padding-bottom: 12px; background-color: #0066cc; color: white; }
+                .better { color: green; font-weight: bold; }
+                .worse { color: red; }
+                .plots { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+                .plot { margin-bottom: 20px; }
+                .plot img { max-width: 100%; height: auto; border: 1px solid #ddd; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>VEC Model Evaluation Results</h1>
+                <p>Evaluation Date: 2025-03-27 23:50:37</p>
+                
+                <div class="summary">
+                    <h2>Overall Comparison</h2>
+                    <p>This report compares the performance of FF-DQN and TE-DQN models across multiple scenarios.</p>
+                    
+                    <div class="plots">
+                        <div class="plot">
+                            <h3>Energy-Latency Trade-off Across Scenarios</h3>
+                            <img src="energy_latency_tradeoff_all.png" alt="Energy-Latency Trade-off">
+                        </div>
+                        <div class="plot">
+                            <h3>Improvement Percentages</h3>
+                            <img src="percentage_improvements.png" alt="Improvement Percentages">
+                        </div>
+                        <div class="plot">
+                            <h3>Wake-up Action Timing Analysis</h3>
+                            <img src="wakeup_timing_analysis.png" alt="Wake-up Timing Analysis">
+                        </div>
+                        <div class="plot">
+                            <h3>All Scenarios Radar Comparison</h3>
+                            <img src="all_scenarios_radar.png" alt="All Scenarios Radar">
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="scenario">
+                    <h2 class="scenario-title">Baseline Scenario</h2>
+                    <p>Similar to training conditions</p>
+                    
+                    <h3>Performance Metrics</h3>
+                    <div class="plots">
+                        <div class="plot">
+                            <h4>Reward Comparison</h4>
+                            <img src="baseline/reward_comparison.png" alt="Reward Comparison">
+                        </div>
+                        <div class="plot">
+                            <h4>Metrics Comparison</h4>
+                            <img src="baseline/metrics_comparison.png" alt="Metrics Comparison">
+                        </div>
+                        <div class="plot">
+                            <h4>Energy-Latency Trade-off</h4>
+                            <img src="baseline/energy_latency_tradeoff.png" alt="Energy-Latency Trade-off">
+                        </div>
+                        <div class="plot">
+                            <h4>Wake-up Distribution</h4>
+                            <img src="baseline/wakeup_distribution.png" alt="Wake-up Distribution">
+                        </div>
+                    </div>
+                    
+                    <h3>Radar Plot</h3>
+                    <div class="plots">
+                        <div class="plot">
+                            <img src="baseline_radar.png" alt="baseline Radar Plot">
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="scenario">
+                    <h2 class="scenario-title">High Traffic Scenario</h2>
+                    <p>Increased task generation to simulate heavy traffic</p>
+                    
+                    <h3>Performance Metrics</h3>
+                    <div class="plots">
+                        <div class="plot">
+                            <h4>Reward Comparison</h4>
+                            <img src="high_traffic/reward_comparison.png" alt="Reward Comparison">
+                        </div>
+                        <div class="plot">
+                            <h4>Metrics Comparison</h4>
+                            <img src="high_traffic/metrics_comparison.png" alt="Metrics Comparison">
+                        </div>
+                        <div class="plot">
+                            <h4>Energy-Latency Trade-off</h4>
+                            <img src="high_traffic/energy_latency_tradeoff.png" alt="Energy-Latency Trade-off">
+                        </div>
+                        <div class="plot">
+                            <h4>Wake-up Distribution</h4>
+                            <img src="high_traffic/wakeup_distribution.png" alt="Wake-up Distribution">
+                        </div>
+                    </div>
+                    
+                    <h3>Radar Plot</h3>
+                    <div class="plots">
+                        <div class="plot">
+                            <img src="high_traffic_radar.png" alt="high_traffic Radar Plot">
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="scenario">
+                    <h2 class="scenario-title">Resource Constrained Scenario</h2>
+                    <p>Fewer active nodes to test wake-up decisions</p>
+                    
+                    <h3>Performance Metrics</h3>
+                    <div class="plots">
+                        <div class="plot">
+                            <h4>Reward Comparison</h4>
+                            <img src="resource_constrained/reward_comparison.png" alt="Reward Comparison">
+                        </div>
+                        <div class="plot">
+                            <h4>Metrics Comparison</h4>
+                            <img src="resource_constrained/metrics_comparison.png" alt="Metrics Comparison">
+                        </div>
+                        <div class="plot">
+                            <h4>Energy-Latency Trade-off</h4>
+                            <img src="resource_constrained/energy_latency_tradeoff.png" alt="Energy-Latency Trade-off">
+                        </div>
+                        <div class="plot">
+                            <h4>Wake-up Distribution</h4>
+                            <img src="resource_constrained/wakeup_distribution.png" alt="Wake-up Distribution">
+                        </div>
+                    </div>
+                    
+                    <h3>Radar Plot</h3>
+                    <div class="plots">
+                        <div class="plot">
+                            <img src="resource_constrained_radar.png" alt="resource_constrained Radar Plot">
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="scenario">
+                    <h2 class="scenario-title">Deadline Sensitive Scenario</h2>
+                    <p>Tight deadlines to stress scheduling</p>
+                    
+                    <h3>Performance Metrics</h3>
+                    <div class="plots">
+                        <div class="plot">
+                            <h4>Reward Comparison</h4>
+                            <img src="deadline_sensitive/reward_comparison.png" alt="Reward Comparison">
+                        </div>
+                        <div class="plot">
+                            <h4>Metrics Comparison</h4>
+                            <img src="deadline_sensitive/metrics_comparison.png" alt="Metrics Comparison">
+                        </div>
+                        <div class="plot">
+                            <h4>Energy-Latency Trade-off</h4>
+                            <img src="deadline_sensitive/energy_latency_tradeoff.png" alt="Energy-Latency Trade-off">
+                        </div>
+                        <div class="plot">
+                            <h4>Wake-up Distribution</h4>
+                            <img src="deadline_sensitive/wakeup_distribution.png" alt="Wake-up Distribution">
+                        </div>
+                    </div>
+                    
+                    <h3>Radar Plot</h3>
+                    <div class="plots">
+                        <div class="plot">
+                            <img src="deadline_sensitive_radar.png" alt="deadline_sensitive Radar Plot">
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="scenario">
+                    <h2 class="scenario-title">Energy Sensitive Scenario</h2>
+                    <p>Higher energy weight for evaluation</p>
+                    
+                    <h3>Performance Metrics</h3>
+                    <div class="plots">
+                        <div class="plot">
+                            <h4>Reward Comparison</h4>
+                            <img src="energy_sensitive/reward_comparison.png" alt="Reward Comparison">
+                        </div>
+                        <div class="plot">
+                            <h4>Metrics Comparison</h4>
+                            <img src="energy_sensitive/metrics_comparison.png" alt="Metrics Comparison">
+                        </div>
+                        <div class="plot">
+                            <h4>Energy-Latency Trade-off</h4>
+                            <img src="energy_sensitive/energy_latency_tradeoff.png" alt="Energy-Latency Trade-off">
+                        </div>
+                        <div class="plot">
+                            <h4>Wake-up Distribution</h4>
+                            <img src="energy_sensitive/wakeup_distribution.png" alt="Wake-up Distribution">
+                        </div>
+                    </div>
+                    
+                    <h3>Radar Plot</h3>
+                    <div class="plots">
+                        <div class="plot">
+                            <img src="energy_sensitive_radar.png" alt="energy_sensitive Radar Plot">
+                        </div>
+                    </div>
+                </div>
+            
+            </div>
+        </body>
+        </html>
+        
