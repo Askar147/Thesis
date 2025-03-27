@@ -1,0 +1,188 @@
+{
+    "ff_dqn": {
+        "avg_reward": {
+            "baseline": 121.43952139325555,
+            "high_traffic": 123.46113957759692,
+            "resource_constrained": 125.76905090820576,
+            "deadline_sensitive": 128.52141245444264,
+            "energy_sensitive": 189.09727283146935
+        },
+        "avg_completion_rate": {
+            "baseline": 1.0,
+            "high_traffic": 1.0,
+            "resource_constrained": 1.0,
+            "deadline_sensitive": 1.0,
+            "energy_sensitive": 1.0
+        },
+        "avg_latency": {
+            "baseline": 54.176569120727734,
+            "high_traffic": 56.47019192262262,
+            "resource_constrained": 49.44752240617864,
+            "deadline_sensitive": 50.1541362320696,
+            "energy_sensitive": 53.237634135104074
+        },
+        "avg_energy_consumption": {
+            "baseline": 989.6023935510912,
+            "high_traffic": 947.9018987297062,
+            "resource_constrained": 891.6656252116057,
+            "deadline_sensitive": 896.9372202795951,
+            "energy_sensitive": 936.3894804496997
+        },
+        "avg_wake_decisions": {
+            "baseline": 0.6,
+            "high_traffic": 0.8,
+            "resource_constrained": 0.8,
+            "deadline_sensitive": 0.6,
+            "energy_sensitive": 0.8
+        }
+    },
+    "te_dqn": {
+        "avg_reward": {
+            "baseline": 140.71384760037964,
+            "high_traffic": 136.01766893414194,
+            "resource_constrained": 137.10891826817974,
+            "deadline_sensitive": 138.6871460023673,
+            "energy_sensitive": 201.9524291213473
+        },
+        "avg_completion_rate": {
+            "baseline": 1.0,
+            "high_traffic": 1.0,
+            "resource_constrained": 1.0,
+            "deadline_sensitive": 1.0,
+            "energy_sensitive": 1.0
+        },
+        "avg_latency": {
+            "baseline": 48.62050414234784,
+            "high_traffic": 54.89211475653733,
+            "resource_constrained": 49.16354130255839,
+            "deadline_sensitive": 48.04931745405857,
+            "energy_sensitive": 51.028409271933285
+        },
+        "avg_energy_consumption": {
+            "baseline": 1003.6974073349948,
+            "high_traffic": 979.086394221448,
+            "resource_constrained": 957.2871027068708,
+            "deadline_sensitive": 948.2509234074994,
+            "energy_sensitive": 944.8805772886446
+        },
+        "avg_wake_decisions": {
+            "baseline": 0.0,
+            "high_traffic": 0.0,
+            "resource_constrained": 0.0,
+            "deadline_sensitive": 0.0,
+            "energy_sensitive": 0.0
+        }
+    },
+    "comparison": {
+        "avg_reward": {
+            "baseline": {
+                "difference": 19.27432620712409,
+                "percent_improvement": 15.871543288373449
+            },
+            "high_traffic": {
+                "difference": 12.556529356545013,
+                "percent_improvement": 10.170430468652098
+            },
+            "resource_constrained": {
+                "difference": 11.33986735997398,
+                "percent_improvement": 9.01642119272295
+            },
+            "deadline_sensitive": {
+                "difference": 10.165733547924674,
+                "percent_improvement": 7.909758657163958
+            },
+            "energy_sensitive": {
+                "difference": 12.855156289877954,
+                "percent_improvement": 6.798171172640314
+            }
+        },
+        "avg_completion_rate": {
+            "baseline": {
+                "difference": 0.0,
+                "percent_improvement": 0.0
+            },
+            "high_traffic": {
+                "difference": 0.0,
+                "percent_improvement": 0.0
+            },
+            "resource_constrained": {
+                "difference": 0.0,
+                "percent_improvement": 0.0
+            },
+            "deadline_sensitive": {
+                "difference": 0.0,
+                "percent_improvement": 0.0
+            },
+            "energy_sensitive": {
+                "difference": 0.0,
+                "percent_improvement": 0.0
+            }
+        },
+        "avg_latency": {
+            "baseline": {
+                "difference": -5.556064978379894,
+                "percent_improvement": -10.255475879247152
+            },
+            "high_traffic": {
+                "difference": -1.5780771660852864,
+                "percent_improvement": -2.794531260399507
+            },
+            "resource_constrained": {
+                "difference": -0.2839811036202491,
+                "percent_improvement": -0.5743080538748381
+            },
+            "deadline_sensitive": {
+                "difference": -2.1048187780110297,
+                "percent_improvement": -4.1967002846420565
+            },
+            "energy_sensitive": {
+                "difference": -2.209224863170789,
+                "percent_improvement": -4.149742750709615
+            }
+        },
+        "avg_energy_consumption": {
+            "baseline": {
+                "difference": 14.095013783903596,
+                "percent_improvement": 1.4243108015659725
+            },
+            "high_traffic": {
+                "difference": 31.184495491741814,
+                "percent_improvement": 3.289844184670639
+            },
+            "resource_constrained": {
+                "difference": 65.62147749526503,
+                "percent_improvement": 7.359426632566671
+            },
+            "deadline_sensitive": {
+                "difference": 51.31370312790432,
+                "percent_improvement": 5.720991610974591
+            },
+            "energy_sensitive": {
+                "difference": 8.49109683894494,
+                "percent_improvement": 0.90679113939502
+            }
+        },
+        "avg_wake_decisions": {
+            "baseline": {
+                "difference": -0.6,
+                "percent_improvement": -100.0
+            },
+            "high_traffic": {
+                "difference": -0.8,
+                "percent_improvement": -100.0
+            },
+            "resource_constrained": {
+                "difference": -0.8,
+                "percent_improvement": -100.0
+            },
+            "deadline_sensitive": {
+                "difference": -0.6,
+                "percent_improvement": -100.0
+            },
+            "energy_sensitive": {
+                "difference": -0.8,
+                "percent_improvement": -100.0
+            }
+        }
+    }
+}
