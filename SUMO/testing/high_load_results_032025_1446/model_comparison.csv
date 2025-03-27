@@ -1,0 +1,8 @@
+Metric,TE-DQN,FF-DQN,Difference (%)
+Average Reward,460.51 ± 4.60,457.06 ± 5.19,0.76%
+Task Completion Rate,1.0000,1.0000,0.00%
+Task Rejection Rate,0.0004,0.0017,-78.37%
+Average Latency (s),56.3385,56.2891,0.09%
+Energy Consumption (J),995.9563,1007.2560,-1.12%
+Node Utilization,0.5000,0.5000,0.00%
+Average Steps/Episode,1000.00,1000.00,0.00%

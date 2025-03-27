@@ -1,0 +1,12 @@
+{
+    "transformer_model": "best_model\\best_model.pt",
+    "dqn_model": "best_model\\best_model.pth",
+    "config": "config.json",
+    "energy_csv": "merged_dag1.csv",
+    "load_factor": 2.0,
+    "output_dir": "high_load_results_032025_1457\\varying_load",
+    "episodes": 5,
+    "varying_load": true,
+    "load_factors": "1.0,1.5,2.0,3.0,4.0",
+    "seed": 42
+}
