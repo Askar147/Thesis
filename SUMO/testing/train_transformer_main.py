@@ -39,6 +39,10 @@ def main():
                         help='Model dimension for transformer')
     parser.add_argument('--nheads', type=int, default=4,
                         help='Number of attention heads')
+    parser.add_argument('--min_tasks', type=int, default=5,
+                        help='Number of min task generation per step')
+    parser.add_argument('--max_tasks', type=int, default=10,
+                        help='Number of max task generation per step')
     
     args = parser.parse_args()
     
@@ -53,7 +57,7 @@ def main():
         'simulation_duration': args.duration,
         'time_step': 1,
         'queue_process_interval': 5,
-        'max_queue_length': 50,
+        'max_queue_length': 10,
         'history_length': 10,
         'energy_csv_path': args.energy_csv,
         'energy_weight': args.energy_weight,
