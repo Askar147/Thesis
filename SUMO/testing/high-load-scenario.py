@@ -89,7 +89,7 @@ def create_stress_test_env(task_intensity='medium'):
     return env
 
 def run_stress_test(ff_model_path, te_model_path, output_dir='stress_test_results', 
-                   episodes=3, max_steps=300, task_intensity='medium'):
+                   episodes=3, max_steps=600, task_intensity='medium'):
     """Run stress test evaluation on both models"""
     # Create output directory
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

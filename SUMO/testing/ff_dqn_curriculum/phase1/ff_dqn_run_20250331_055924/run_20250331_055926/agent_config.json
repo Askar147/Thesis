@@ -1,0 +1,6 @@
+{
+    "num_episodes": 200,
+    "max_steps": 1000,
+    "target_update_frequency": 10,
+    "load_model": null
+}
