@@ -1,0 +1,8 @@
+{
+    "ff_model_path": "best_model/best_model_ff.pth",
+    "te_model_path": "models\\te_ddqn_curriculum_final.pt",
+    "episodes": 2,
+    "max_steps": 600,
+    "task_intensity": "high",
+    "timestamp": "20250401_040009"
+}

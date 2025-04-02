@@ -1,0 +1,22 @@
+[2025-04-02 02:36:25] 
+================================================================================
+Phase 1: Low Load Training
+================================================================================
+
+[2025-04-02 02:36:25] Running command: python -u train_transformer_main.py --energy_csv merged_dag1.csv --energy_weight 0.7 --episodes 200 --max_steps 1000 --duration 300 --output_dir te_ddqn_curriculum_v2\phase1 --min_tasks 10 --max_tasks 15 --seq_length 16 --d_model 128 --nheads 4
+Error closing TRACI: module 'traci' has no attribute 'isConnected'
+Forcefully terminated any existing SUMO processes
+Starting Transformer training with enhanced environment...
+Using energy data from: merged_dag1.csv
+Energy weight: 0.7
+Episodes: 200
+Transformer sequence length: 16
+Output directory: te_ddqn_curriculum_v2\phase1\transformer_run_20250402_023630
+Loaded data for Scenario 1 (Linear Chain): Avg. Power: 1513.77W, Duration: 65.00s, Load Impact: 0.05
+Loaded data for Scenario 2 (Fork and Merge): Avg. Power: 1619.48W, Duration: 52.00s, Load Impact: 0.36
+Loaded data for Scenario 3 (Parallel Tasks): Avg. Power: 1441.52W, Duration: 58.00s, Load Impact: 0.06
+Loaded data for Scenario 4 (Sequential with Branching): Avg. Power: 1903.00W, Duration: 44.00s, Load Impact: 0.33
+Loaded data for Scenario 5 (Complex Merge): Avg. Power: 1644.05W, Duration: 47.00s, Load Impact: 0.05
+Loaded data for Scenario 6 (Double Fork): Avg. Power: 1605.47W, Duration: 81.00s, Load Impact: 0.06
+Loaded data for Scenario 7 (Loop Replanning): Avg. Power: 1444.69W, Duration: 73.00s, Load Impact: 0.19
+Loaded data for Scenario 8 (High Parallelism): Avg. Power: 1660.41W, Duration: 51.00s, Load Impact: 0.06

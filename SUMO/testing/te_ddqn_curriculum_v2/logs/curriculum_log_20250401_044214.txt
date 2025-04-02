@@ -1,0 +1,2 @@
+[2025-04-01 04:42:14] Starting TE-DQN curriculum training v2
+[2025-04-01 04:42:14] Base directory: te_ddqn_curriculum_v2
