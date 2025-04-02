@@ -1,18 +1,14 @@
 #!/usr/bin/env python3
 """
-Main script to run the Transformer-based agent for VEC task offloading
-with the enhanced environment
+Modified train_transformer_main.py that handles SUMO connection issues
 """
 
 import os
 import argparse
 import json
 from datetime import datetime
-
-from vec_environment import VECEnvironment
-from te_dqn_agent import VECTransformerAgent, get_state_size, flatten_observation
-from te_dqn_train import train_transformer
-from te_dqn_train import plot_training_curves
+import time
+import sys
 
 def main():
     """Main function to run Transformer training with enhanced environment"""
@@ -39,12 +35,36 @@ def main():
                         help='Model dimension for transformer')
     parser.add_argument('--nheads', type=int, default=4,
                         help='Number of attention heads')
-    parser.add_argument('--min_tasks', type=int, default=5,
-                        help='Number of min task generation per step')
-    parser.add_argument('--max_tasks', type=int, default=10,
-                        help='Number of max task generation per step')
+    parser.add_argument('--min_tasks', type=int, default=10,
+                        help='Minimum tasks per step')
+    parser.add_argument('--max_tasks', type=int, default=20,
+                        help='Maximum tasks per step')
+    parser.add_argument('--load_model', type=str, default=None,
+                        help='Path to load existing model (optional)')
     
     args = parser.parse_args()
+    
+    # Make sure any existing TRACI connections are closed
+    try:
+        import traci
+        if traci.isConnected():
+            traci.close()
+            print("Closed existing TRACI connection")
+            time.sleep(5)  # Give time for cleanup
+    except Exception as e:
+        print(f"Error closing TRACI: {e}")
+    
+    # Try to forcefully terminate any SUMO processes (Windows)
+    try:
+        import subprocess
+        subprocess.run(['taskkill', '/F', '/IM', 'sumo.exe'], 
+                      stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+        subprocess.run(['taskkill', '/F', '/IM', 'sumo-gui.exe'], 
+                      stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+        print("Forcefully terminated any existing SUMO processes")
+        time.sleep(5)  # Give time for cleanup
+    except Exception as e:
+        print(f"Error terminating SUMO processes: {e}")
     
     # Create output directory with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -57,7 +77,7 @@ def main():
         'simulation_duration': args.duration,
         'time_step': 1,
         'queue_process_interval': 5,
-        'max_queue_length': 10,
+        'max_queue_length': 50,
         'history_length': 10,
         'energy_csv_path': args.energy_csv,
         'energy_weight': args.energy_weight,
@@ -66,8 +86,8 @@ def main():
             'bandwidth': 20,
             'noise_floor': -95
         },
-        'min_tasks_per_step': 10,
-        'max_tasks_per_step': 20,
+        'min_tasks_per_step': args.min_tasks,
+        'max_tasks_per_step': args.max_tasks,
         'task_generation_probability': 1,
         'seed': args.seed
     }
@@ -90,7 +110,7 @@ def main():
         'epsilon_decay_steps': 2000,
         'lr': 0.0003,
         'weight_decay': 1e-5,
-        'load_model': None
+        'load_model': args.load_model
     }
     
     # Save configuration
@@ -104,99 +124,131 @@ def main():
     print(f"Transformer sequence length: {args.seq_length}")
     print(f"Output directory: {run_dir}")
     
+    # Import training module here to ensure clean environment
+    from te_dqn_train import train_transformer
+    
     # Run training
-    agent, metrics, output_dir = train_transformer(env_config, agent_config, log_dir=run_dir)
-    
-    print(f"Training completed!")
-    print(f"Results saved to: {output_dir}")
-    
-    # Optional: Evaluate the trained model
-    print("Would you like to evaluate the trained model? (y/n)")
-    response = input().strip().lower()
-    
-    if response == 'y':
-        print("Running evaluation of the best model...")
-        # Create evaluation environment
-        eval_env = VECEnvironment(
-            sumo_config=env_config['sumo_config'],
-            simulation_duration=env_config['simulation_duration'],
-            time_step=env_config['time_step'],
-            queue_process_interval=env_config['queue_process_interval'],
-            max_queue_length=env_config['max_queue_length'],
-            history_length=env_config['history_length'],
-            energy_csv_path=env_config['energy_csv_path'],
-            energy_weight=env_config['energy_weight'],
-            latency_model_params=env_config['latency_model_params'],
-            min_tasks_per_step=env_config['min_tasks_per_step'],
-            max_tasks_per_step=env_config['max_tasks_per_step'],
-            task_generation_probability=env_config['task_generation_probability'],
-            seed=args.seed + 100  # Different seed for evaluation
-        )
+    try:
+        agent, metrics, output_dir = train_transformer(env_config, agent_config, log_dir=run_dir)
         
-        # Calculate state size
-        state_size = get_state_size(eval_env)
-        action_size = eval_env.action_space.n
+        print(f"Training completed!")
+        print(f"Results saved to: {output_dir}")
         
-        # Create evaluation agent
-        eval_agent = VECTransformerAgent(state_size, action_size)
+        # Optional: Evaluate the trained model
+        # print("Would you like to evaluate the trained model? (y/n)")
+        # response = input().strip().lower()
+        response = 'n'
+        if response == 'y':
+            print("Running evaluation of the best model...")
+            # Import here to ensure clean environment
+            from vec_environment import VECEnvironment
+            from te_dqn_agent import VECTransformerAgent, flatten_observation, get_state_size
+            
+            try:
+                # Make sure TRACI is closed again
+                import traci
+                if traci.isConnected():
+                    traci.close()
+                    print("Closed TRACI connection before evaluation")
+                    time.sleep(5)
+                
+                # Create evaluation environment
+                eval_env = VECEnvironment(
+                    sumo_config=env_config['sumo_config'],
+                    simulation_duration=env_config['simulation_duration'],
+                    time_step=env_config['time_step'],
+                    queue_process_interval=env_config['queue_process_interval'],
+                    max_queue_length=env_config['max_queue_length'],
+                    history_length=env_config['history_length'],
+                    energy_csv_path=env_config['energy_csv_path'],
+                    energy_weight=env_config['energy_weight'],
+                    latency_model_params=env_config['latency_model_params'],
+                    min_tasks_per_step=env_config['min_tasks_per_step'],
+                    max_tasks_per_step=env_config['max_tasks_per_step'],
+                    task_generation_probability=env_config['task_generation_probability'],
+                    seed=args.seed + 100  # Different seed for evaluation
+                )
+                
+                # Calculate state size
+                state_size = get_state_size(eval_env)
+                action_size = eval_env.action_space.n
+                
+                # Create evaluation agent
+                eval_agent = VECTransformerAgent(state_size, action_size)
+                
+                # Load the best model
+                best_model_path = os.path.join(output_dir, "best_model.pt")
+                if os.path.exists(best_model_path):
+                    eval_agent.load_model(best_model_path)
+                    
+                    # Run 10 evaluation episodes
+                    eval_episodes = 10
+                    total_rewards = []
+                    
+                    for episode in range(eval_episodes):
+                        obs = eval_env.reset()
+                        state = flatten_observation(obs)
+                        episode_reward = 0
+                        
+                        # Clear state history
+                        eval_agent.state_history.clear()
+                        
+                        step = 0
+                        max_eval_steps = 300
+                        
+                        while step < max_eval_steps:
+                            # Select action deterministically (no exploration)
+                            action = eval_agent.select_action(state, evaluate=True)
+                            
+                            # Take action
+                            next_obs, reward, done, info = eval_env.step(action)
+                            next_state = flatten_observation(next_obs)
+                            
+                            episode_reward += reward
+                            state = next_state
+                            step += 1
+                            
+                            if done:
+                                break
+                        
+                        total_rewards.append(episode_reward)
+                        print(f"Evaluation Episode {episode+1}/{eval_episodes} - Reward: {episode_reward:.2f}")
+                    
+                    # Print evaluation results
+                    avg_reward = sum(total_rewards) / len(total_rewards)
+                    print(f"\nEvaluation Results:")
+                    print(f"Average Reward: {avg_reward:.2f}")
+                    print(f"Min Reward: {min(total_rewards):.2f}")
+                    print(f"Max Reward: {max(total_rewards):.2f}")
+                    
+                    # Save evaluation results
+                    eval_results = {
+                        'rewards': total_rewards,
+                        'avg_reward': avg_reward,
+                        'min_reward': min(total_rewards),
+                        'max_reward': max(total_rewards)
+                    }
+                    
+                    with open(os.path.join(output_dir, 'evaluation_results.json'), 'w') as f:
+                        json.dump(eval_results, f, indent=4)
+                else:
+                    print(f"Could not find best model at {best_model_path}")
+            except Exception as e:
+                print(f"Error during evaluation: {e}")
+                import traceback
+                traceback.print_exc()
+    except Exception as e:
+        print(f"Error during training: {e}")
+        import traceback
+        traceback.print_exc()
         
-        # Load the best model
-        best_model_path = os.path.join(output_dir, "best_model.pt")
-        if os.path.exists(best_model_path):
-            eval_agent.load_model(best_model_path)
-            
-            # Run 10 evaluation episodes
-            eval_episodes = 10
-            total_rewards = []
-            
-            for episode in range(eval_episodes):
-                obs = eval_env.reset()
-                state = flatten_observation(obs)
-                episode_reward = 0
-                
-                # Clear state history
-                eval_agent.state_history.clear()
-                
-                step = 0
-                max_eval_steps = 300
-                
-                while step < max_eval_steps:
-                    # Select action deterministically (no exploration)
-                    action = eval_agent.select_action(state, evaluate=True)
-                    
-                    # Take action
-                    next_obs, reward, done, info = eval_env.step(action)
-                    next_state = flatten_observation(next_obs)
-                    
-                    episode_reward += reward
-                    state = next_state
-                    step += 1
-                    
-                    if done:
-                        break
-                
-                total_rewards.append(episode_reward)
-                print(f"Evaluation Episode {episode+1}/{eval_episodes} - Reward: {episode_reward:.2f}")
-            
-            # Print evaluation results
-            avg_reward = sum(total_rewards) / len(total_rewards)
-            print(f"\nEvaluation Results:")
-            print(f"Average Reward: {avg_reward:.2f}")
-            print(f"Min Reward: {min(total_rewards):.2f}")
-            print(f"Max Reward: {max(total_rewards):.2f}")
-            
-            # Save evaluation results
-            eval_results = {
-                'rewards': total_rewards,
-                'avg_reward': avg_reward,
-                'min_reward': min(total_rewards),
-                'max_reward': max(total_rewards)
-            }
-            
-            with open(os.path.join(output_dir, 'evaluation_results.json'), 'w') as f:
-                json.dump(eval_results, f, indent=4)
-        else:
-            print(f"Could not find best model at {best_model_path}")
+    # Ensure TRACI connections are closed when we're done
+    try:
+        import traci
+        if traci.isConnected():
+            traci.close()
+    except:
+        pass
 
 if __name__ == "__main__":
     main()

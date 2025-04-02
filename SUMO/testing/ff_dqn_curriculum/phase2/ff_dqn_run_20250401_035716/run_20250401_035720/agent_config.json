@@ -1,0 +1,6 @@
+{
+    "num_episodes": 300,
+    "max_steps": 1000,
+    "target_update_frequency": 10,
+    "load_model": "ff_dqn_curriculum\\phase1\\ff_dqn_run_20250331_055924\\run_20250331_055926\\best_model.pth"
+}

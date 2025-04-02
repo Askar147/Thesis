@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 """
-Main script to run the updated FF-DQN training with enhanced VEC environment
+Modified train_dqn_main.py that handles SUMO connection issues
 """
 
 import os
 import argparse
-from datetime import datetime
 import json
-
-from vec_environment import VECEnvironment
-from ff_dqn_agent import DQNAgent
-from ff_dqn_train import train_dqn
+from datetime import datetime
+import time
+import sys
 
 def main():
     """Main function to run FF-DQN training with enhanced environment"""
@@ -31,12 +29,36 @@ def main():
                         help='Directory to save results')
     parser.add_argument('--seed', type=int, default=42,
                         help='Random seed for reproducibility')
-    parser.add_argument('--min_tasks', type=int, default=5,
-                        help='Number of min task generation per step')
-    parser.add_argument('--max_tasks', type=int, default=10,
-                        help='Number of max task generation per step')
+    parser.add_argument('--min_tasks', type=int, default=10,
+                        help='Minimum tasks per step')
+    parser.add_argument('--max_tasks', type=int, default=20,
+                        help='Maximum tasks per step')
+    parser.add_argument('--load_model', type=str, default=None,
+                        help='Path to load existing model (optional)')
     
     args = parser.parse_args()
+    
+    # Make sure any existing TRACI connections are closed
+    try:
+        import traci
+        if traci.isConnected():
+            traci.close()
+            print("Closed existing TRACI connection")
+            time.sleep(5)  # Give time for cleanup
+    except Exception as e:
+        print(f"Error closing TRACI: {e}")
+    
+    # Try to forcefully terminate any SUMO processes (Windows)
+    try:
+        import subprocess
+        subprocess.run(['taskkill', '/F', '/IM', 'sumo.exe'], 
+                      stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+        subprocess.run(['taskkill', '/F', '/IM', 'sumo-gui.exe'], 
+                      stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+        print("Forcefully terminated any existing SUMO processes")
+        time.sleep(5)  # Give time for cleanup
+    except Exception as e:
+        print(f"Error terminating SUMO processes: {e}")
     
     # Create output directory with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -49,7 +71,7 @@ def main():
         'simulation_duration': args.duration,
         'time_step': 1,
         'queue_process_interval': 5,
-        'max_queue_length': 10,
+        'max_queue_length': 50,
         'history_length': 10,
         'energy_csv_path': args.energy_csv,
         'energy_weight': args.energy_weight,
@@ -58,8 +80,8 @@ def main():
             'bandwidth': 20,
             'noise_floor': -95
         },
-        'min_tasks_per_step': 2,
-        'max_tasks_per_step': 10,
+        'min_tasks_per_step': args.min_tasks,
+        'max_tasks_per_step': args.max_tasks,
         'task_generation_probability': 1,
         'seed': args.seed
     }
@@ -69,7 +91,7 @@ def main():
         'num_episodes': args.episodes,
         'max_steps': args.max_steps,
         'target_update_frequency': 10,
-        'load_model': None
+        'load_model': args.load_model
     }
     
     # Save configuration
@@ -82,11 +104,28 @@ def main():
     print(f"Episodes: {args.episodes}")
     print(f"Output directory: {run_dir}")
     
-    # Run training
-    agent, metrics, output_dir = train_dqn(env_config, agent_config, log_dir=run_dir)
+    # Import training module here to ensure clean environment
+    from ff_dqn_train import train_dqn
     
-    print(f"Training completed!")
-    print(f"Results saved to: {output_dir}")
+    # Run training
+    try:
+        agent, metrics, output_dir = train_dqn(env_config, agent_config, log_dir=run_dir)
+        
+        print(f"Training completed!")
+        print(f"Results saved to: {output_dir}")
+        
+    except Exception as e:
+        print(f"Error during training: {e}")
+        import traceback
+        traceback.print_exc()
+        
+    # Ensure TRACI connections are closed when we're done
+    try:
+        import traci
+        if traci.isConnected():
+            traci.close()
+    except:
+        pass
 
 if __name__ == "__main__":
     main()
