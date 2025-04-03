@@ -272,7 +272,7 @@ class VECEnvironment(gym.Env):
                 energy_penalty = self.energy_model.get_wake_up_energy()
                 energy_consumption = energy_penalty
                 wake_reward = -self.energy_weight * energy_penalty / 100.0
-                reward += wake_reward
+                # reward += wake_reward
             else:
                 reward -= 0.5
         else:

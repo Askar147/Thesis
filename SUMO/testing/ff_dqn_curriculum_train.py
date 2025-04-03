@@ -120,7 +120,7 @@ phase2_cmd = [
     "--output_dir", phase2_dir,
     "--min_tasks", "20",
     "--max_tasks", "30",
-    "--load_model", phase1_model
+    # "--load_model", phase1_model
 ]
 
 phase2_model = run_phase("Phase 2: Medium Load Training", phase2_dir, phase2_cmd)
@@ -156,7 +156,7 @@ phase3_cmd = [
     "--output_dir", phase3_dir,
     "--min_tasks", "40",
     "--max_tasks", "50",
-    "--load_model", phase2_model
+    # "--load_model", phase2_model
 ]
 
 phase3_model = run_phase("Phase 3: High Load Training", phase3_dir, phase3_cmd)
@@ -196,7 +196,7 @@ phase4_cmd = [
     "--output_dir", phase4_dir,
     "--min_tasks", "450",    # Much higher task load
     "--max_tasks", "500",    # Extreme task generation
-    "--load_model", best_model
+    # "--load_model", best_model
 ]
 
 phase4_model = run_phase("Phase 4: Extreme Load Training (500 max tasks)", phase4_dir, phase4_cmd)
