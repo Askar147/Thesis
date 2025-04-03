@@ -1,0 +1,51 @@
+Stress Test Summary
+=================
+
+Test Date: 2025-04-04 01:26:46
+
+Episode Lengths:
+  FF-DQN: 600.00 steps per episode
+  TE-DQN: 600.00 steps per episode
+
+Wake Decisions:
+  FF-DQN: 1.00 per episode
+  TE-DQN: 0.00 per episode
+
+Performance Metrics:
+  Avg Reward:
+    FF-DQN: 219.0386
+    TE-DQN: -486.6524
+    Difference: -705.6909 (-322.18%), Better: FF-DQN
+
+  Completion Rate:
+    FF-DQN: 1.0000
+    TE-DQN: 1.0000
+    Difference: 0.0000 (0.00%), Better: Equal
+
+  Rejection Rate:
+    FF-DQN: 0.0900
+    TE-DQN: 0.8700
+    Difference: 0.7800 (-866.67%), Better: FF-DQN
+
+  Latency:
+    FF-DQN: 49.4566
+    TE-DQN: 36.8660
+    Difference: -12.5906 (25.46%), Better: TE-DQN
+
+  Energy:
+    FF-DQN: 1026.8414
+    TE-DQN: 808.3023
+    Difference: -218.5391 (21.28%), Better: TE-DQN
+
+  Queue Length:
+    FF-DQN: 0.0000
+    TE-DQN: 0.0000
+    Difference: 0.0000 (0.00%), Better: Equal
+
+
+Detailed Wake Decisions:
+  FF-DQN Wake Steps (Episode 1):
+    434
+
+  TE-DQN Wake Steps (Episode 1):
+    
