@@ -1,0 +1,8 @@
+{
+    "ff_model_path": "ff_dqn_easy_curriculum\\phase4_extreme\\ff_dqn_run_20250404_032303\\run_20250404_032307\\best_model.pth",
+    "te_model_path": "te_dqn_easy_curriculum\\phase3\\transformer_run_20250403_022744\\run_20250403_022749\\best_model.pt",
+    "episodes": 3,
+    "max_steps": 600,
+    "task_intensity": "medium",
+    "timestamp": "20250405_175749"
+}

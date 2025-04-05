@@ -345,9 +345,8 @@ def evaluate_model(model, model_name, env, num_episodes=3, max_steps=300):
     results["avg_metrics"] = avg_results
     
     return results
-
 def generate_comparisons(ff_results, te_results, output_dir):
-    """Generate comparison visualizations specifically for stress test"""
+    """Generate comprehensive comparison visualizations for stress test"""
     if ff_results is None or te_results is None:
         print("Cannot generate comparisons: missing results")
         return
@@ -385,13 +384,32 @@ def generate_comparisons(ff_results, te_results, output_dir):
     width = 0.35
     
     fig, ax = plt.subplots(figsize=(14, 8))
-    ax.bar(x - width/2, [m[0] for m in metrics.values()], width, label="FF-DQN")
-    ax.bar(x + width/2, [m[1] for m in metrics.values()], width, label="TE-DQN")
+    bars1 = ax.bar(x - width/2, [m[0] for m in metrics.values()], width, label="FF-DQN")
+    bars2 = ax.bar(x + width/2, [m[1] for m in metrics.values()], width, label="TE-DQN")
     
     ax.set_xticks(x)
     ax.set_xticklabels(metrics.keys())
     ax.legend()
     ax.set_title("Performance Metrics Under High Load")
+    
+    # Add percentage difference labels
+    for i, (metric, values) in enumerate(metrics.items()):
+        if values[0] > 0:  # Avoid division by zero
+            pct_diff = ((values[1] - values[0]) / values[0]) * 100
+            
+            # For metrics where lower is better, flip the sign
+            if metric in ["Rejection Rate", "Latency", "Energy", "Queue Length"]:
+                pct_diff = -pct_diff
+                
+            # Format with + sign for positive values
+            pct_text = f"{pct_diff:+.1f}%" if pct_diff != 0 else "0%"
+            
+            # Change color based on who's better
+            color = 'green' if pct_diff > 0 else 'red' if pct_diff < 0 else 'black'
+            
+            # Place the text above the higher bar
+            y_pos = max(values[0], values[1]) + 0.1
+            ax.text(i, y_pos, pct_text, ha='center', va='bottom', color=color, fontweight='bold')
     
     plt.savefig(os.path.join(output_dir, "performance_metrics.png"), dpi=300, bbox_inches='tight')
     plt.close()
@@ -460,7 +478,12 @@ def generate_comparisons(ff_results, te_results, output_dir):
                 te_wake_steps.append(step_idx)
         
         # Plot vertical lines at wake decision points
-        y_min, y_max = 0, 1  # Y-axis range for the lines
+        plt.figure(figsize=(12, 6))
+        
+        # Plot queue lengths as background context
+        if len(ff_results["episode_data"][0]["step_data"]) > 0:
+            queue_lengths = [step_data["queue_length"] for step_data in ff_results["episode_data"][0]["step_data"]]
+            plt.plot(range(len(queue_lengths)), queue_lengths, 'k-', alpha=0.2, label='Queue Length')
         
         for step in ff_wake_steps:
             plt.axvline(x=step, color='blue', linestyle='--', alpha=0.7)
@@ -469,12 +492,13 @@ def generate_comparisons(ff_results, te_results, output_dir):
             plt.axvline(x=step, color='red', linestyle='--', alpha=0.7)
         
         plt.xlabel("Simulation Steps")
-        plt.title("Wake Decision Timing (First Episode)")
-        plt.yticks([])  # Hide y-axis ticks as they're not meaningful
+        plt.ylabel("Queue Length")
+        plt.title("Wake Decision Timing with Queue Context (First Episode)")
         
-        # Create custom legend even if no wake decisions
+        # Create custom legend
         from matplotlib.lines import Line2D
         legend_elements = [
+            Line2D([0], [0], color='black', alpha=0.2, label='Queue Length'),
             Line2D([0], [0], color='blue', linestyle='--', label='FF-DQN Wake'),
             Line2D([0], [0], color='red', linestyle='--', label='TE-DQN Wake')
         ]
@@ -482,6 +506,254 @@ def generate_comparisons(ff_results, te_results, output_dir):
         
         plt.grid(True)
         plt.savefig(os.path.join(output_dir, "wake_decision_timing.png"), dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    # 6. NEW: Reward Distribution
+    plt.figure(figsize=(10, 6))
+    
+    plt.boxplot([ff_results["rewards"], te_results["rewards"]], 
+                labels=["FF-DQN", "TE-DQN"],
+                patch_artist=True,
+                boxprops=dict(facecolor="lightblue"),
+                medianprops=dict(color="red"))
+    
+    plt.ylabel("Episode Reward")
+    plt.title("Reward Distribution Comparison")
+    plt.grid(True, axis='y')
+    
+    # Add individual points
+    for i, rewards in enumerate([ff_results["rewards"], te_results["rewards"]]):
+        x = np.random.normal(i+1, 0.04, size=len(rewards))
+        plt.scatter(x, rewards, alpha=0.6, s=40)
+    
+    plt.savefig(os.path.join(output_dir, "reward_distribution.png"), dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    # 7. NEW: Energy vs Latency Tradeoff Scatter Plot
+    plt.figure(figsize=(10, 8))
+    
+    # Get step data for energy and latency
+    if (ff_results["episode_data"] and te_results["episode_data"]):
+        # FF-DQN data
+        ff_latencies = []
+        ff_energies = []
+        for episode_data in ff_results["episode_data"]:
+            for step_data in episode_data["step_data"]:
+                if step_data["avg_latency"] > 0:  # Only include valid data points
+                    ff_latencies.append(step_data["avg_latency"])
+                    ff_energies.append(step_data["energy_consumption"])
+        
+        # TE-DQN data
+        te_latencies = []
+        te_energies = []
+        for episode_data in te_results["episode_data"]:
+            for step_data in episode_data["step_data"]:
+                if step_data["avg_latency"] > 0:  # Only include valid data points
+                    te_latencies.append(step_data["avg_latency"])
+                    te_energies.append(step_data["energy_consumption"])
+        
+        # Plot scatter
+        plt.scatter(ff_latencies, ff_energies, alpha=0.5, label="FF-DQN", color="blue", s=30)
+        plt.scatter(te_latencies, te_energies, alpha=0.5, label="TE-DQN", color="orange", s=30)
+        
+        # Add centroids
+        if ff_latencies and ff_energies:
+            plt.scatter(np.mean(ff_latencies), np.mean(ff_energies), color="darkblue", 
+                       s=100, marker='*', label="FF-DQN Centroid")
+        if te_latencies and te_energies:
+            plt.scatter(np.mean(te_latencies), np.mean(te_energies), color="darkred", 
+                       s=100, marker='*', label="TE-DQN Centroid")
+        
+        plt.xlabel("Latency (s)")
+        plt.ylabel("Energy Consumption (J)")
+        plt.title("Energy-Latency Tradeoff")
+        plt.legend()
+        plt.grid(True)
+        plt.savefig(os.path.join(output_dir, "energy_latency_tradeoff.png"), dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    # 8. NEW: Action Distribution (Node Selection)
+    plt.figure(figsize=(12, 6))
+    
+    if (ff_results["episode_data"] and te_results["episode_data"]):
+        # Extract action frequencies for both models
+        ff_actions = []
+        te_actions = []
+        
+        for episode_data in ff_results["episode_data"]:
+            for step_data in episode_data["step_data"]:
+                ff_actions.append(step_data["action"])
+        
+        for episode_data in te_results["episode_data"]:
+            for step_data in episode_data["step_data"]:
+                te_actions.append(step_data["action"])
+        
+        # Count frequencies
+        action_space = max(max(ff_actions) if ff_actions else 0, 
+                          max(te_actions) if te_actions else 0) + 1
+        
+        ff_counts = np.zeros(action_space)
+        te_counts = np.zeros(action_space)
+        
+        for action in ff_actions:
+            ff_counts[action] += 1
+        
+        for action in te_actions:
+            te_counts[action] += 1
+        
+        # Normalize to percentages
+        if len(ff_actions) > 0:
+            ff_pct = (ff_counts / len(ff_actions)) * 100
+        else:
+            ff_pct = ff_counts
+            
+        if len(te_actions) > 0:
+            te_pct = (te_counts / len(te_actions)) * 100
+        else:
+            te_pct = te_counts
+        
+        # Plot
+        x = np.arange(action_space)
+        width = 0.35
+        
+        fig, ax = plt.subplots(figsize=(14, 7))
+        ax.bar(x - width/2, ff_pct, width, label="FF-DQN")
+        ax.bar(x + width/2, te_pct, width, label="TE-DQN")
+        
+        # Mark the wake-up action
+        wake_idx = action_space - 1
+        ax.axvline(x=wake_idx, color='red', linestyle='--', alpha=0.3)
+        ax.text(wake_idx, max(max(ff_pct), max(te_pct)) * 0.9, "Wake Action", 
+               rotation=90, ha='center', va='top', color='red')
+        
+        ax.set_xlabel("Action (Node ID)")
+        ax.set_ylabel("Selection Frequency (%)")
+        ax.set_title("Action Distribution")
+        ax.set_xticks(x)
+        ax.set_xticklabels([str(i) for i in range(action_space)])
+        ax.legend()
+        
+        plt.savefig(os.path.join(output_dir, "action_distribution.png"), dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    # 9. NEW: Reward Over Time (First Episode)
+    plt.figure(figsize=(12, 6))
+    
+    if (ff_results["episode_data"] and len(ff_results["episode_data"]) > 0 and 
+        te_results["episode_data"] and len(te_results["episode_data"]) > 0):
+        
+        # Extract reward over time from first episode
+        ff_rewards = [step_data["reward"] for step_data in ff_results["episode_data"][0]["step_data"]]
+        ff_cumulative = np.cumsum(ff_rewards)
+        
+        te_rewards = [step_data["reward"] for step_data in te_results["episode_data"][0]["step_data"]]
+        te_cumulative = np.cumsum(te_rewards)
+        
+        plt.figure(figsize=(12, 6))
+        
+        # Plot instantaneous rewards
+        plt.subplot(1, 2, 1)
+        plt.plot(range(len(ff_rewards)), ff_rewards, 'b-', alpha=0.7, label='FF-DQN')
+        plt.plot(range(len(te_rewards)), te_rewards, 'r-', alpha=0.7, label='TE-DQN')
+        plt.xlabel("Step")
+        plt.ylabel("Reward")
+        plt.title("Instantaneous Rewards (First Episode)")
+        plt.legend()
+        plt.grid(True)
+        
+        # Plot cumulative rewards
+        plt.subplot(1, 2, 2)
+        plt.plot(range(len(ff_cumulative)), ff_cumulative, 'b-', label='FF-DQN')
+        plt.plot(range(len(te_cumulative)), te_cumulative, 'r-', label='TE-DQN')
+        plt.xlabel("Step")
+        plt.ylabel("Cumulative Reward")
+        plt.title("Cumulative Rewards (First Episode)")
+        plt.legend()
+        plt.grid(True)
+        
+        plt.tight_layout()
+        plt.savefig(os.path.join(output_dir, "reward_over_time.png"), dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    # 10. NEW: Radar Chart of Key Metrics
+    plt.figure(figsize=(10, 10))
+    
+    # Define the metrics for the radar chart
+    radar_metrics = [
+        "Completion Rate",
+        "Energy Efficiency",  # Inverse of energy consumption
+        "Latency Efficiency", # Inverse of latency
+        "Node Efficiency",    # Ratio of active nodes to total
+        "Wake Decision Efficiency" # Fewer is better
+    ]
+    
+    # Calculate values (normalized between 0 and 1)
+    # For metrics where higher is better:
+    ff_completion = ff_results["avg_metrics"]["avg_completion_rate"]
+    te_completion = te_results["avg_metrics"]["avg_completion_rate"]
+    
+    # For metrics where lower is better, invert them so higher is better in the chart
+    # Energy efficiency (inverse of energy consumption)
+    max_energy = max(ff_results["avg_metrics"]["avg_energy_consumption"], 
+                     te_results["avg_metrics"]["avg_energy_consumption"])
+    ff_energy_eff = 1 - (ff_results["avg_metrics"]["avg_energy_consumption"] / max_energy if max_energy > 0 else 0)
+    te_energy_eff = 1 - (te_results["avg_metrics"]["avg_energy_consumption"] / max_energy if max_energy > 0 else 0)
+    
+    # Latency efficiency (inverse of latency)
+    max_latency = max(ff_results["avg_metrics"]["avg_latency"], 
+                      te_results["avg_metrics"]["avg_latency"])
+    ff_latency_eff = 1 - (ff_results["avg_metrics"]["avg_latency"] / max_latency if max_latency > 0 else 0)
+    te_latency_eff = 1 - (te_results["avg_metrics"]["avg_latency"] / max_latency if max_latency > 0 else 0)
+    
+    # Node efficiency (ratio of active nodes)
+    ff_node_eff = 1 - ff_results["avg_metrics"]["avg_active_nodes"]
+    te_node_eff = 1 - te_results["avg_metrics"]["avg_active_nodes"]
+    
+    # Wake decision efficiency (fewer is better)
+    max_wake = max(ff_results["avg_metrics"]["avg_wake_decisions"], 
+                   te_results["avg_metrics"]["avg_wake_decisions"])
+    ff_wake_eff = 1 - (ff_results["avg_metrics"]["avg_wake_decisions"] / max_wake if max_wake > 0 else 0)
+    te_wake_eff = 1 - (te_results["avg_metrics"]["avg_wake_decisions"] / max_wake if max_wake > 0 else 0)
+    
+    # Combine values
+    ff_values = [ff_completion, ff_energy_eff, ff_latency_eff, ff_node_eff, ff_wake_eff]
+    te_values = [te_completion, te_energy_eff, te_latency_eff, te_node_eff, te_wake_eff]
+    
+    # Make sure values are between 0 and 1
+    ff_values = [max(0, min(1, v)) for v in ff_values]
+    te_values = [max(0, min(1, v)) for v in te_values]
+    
+    # Number of variables
+    N = len(radar_metrics)
+    
+    # What will be the angle of each axis in the plot
+    angles = [n / float(N) * 2 * np.pi for n in range(N)]
+    angles += angles[:1]  # Close the loop
+    
+    # Add the values for the first point to close the loop
+    ff_values += ff_values[:1]
+    te_values += te_values[:1]
+    
+    # Create the plot
+    ax = plt.subplot(111, polar=True)
+    
+    # Draw one axis per variable and add labels
+    plt.xticks(angles[:-1], radar_metrics, size=12)
+    
+    # Draw the outline of the data
+    ax.plot(angles, ff_values, 'b-', linewidth=2, label='FF-DQN')
+    ax.fill(angles, ff_values, 'b', alpha=0.1)
+    
+    ax.plot(angles, te_values, 'r-', linewidth=2, label='TE-DQN')
+    ax.fill(angles, te_values, 'r', alpha=0.1)
+    
+    # Add legend
+    plt.legend(loc='upper right', bbox_to_anchor=(0.1, 0.1))
+    
+    plt.title("Performance Radar Chart", size=15)
+    plt.tight_layout()
+    
+    plt.savefig(os.path.join(output_dir, "radar_chart.png"), dpi=300, bbox_inches='tight')
     plt.close()
     
     # Create summary text file
@@ -528,6 +800,259 @@ def generate_comparisons(ff_results, te_results, output_dir):
                 if step_data.get("is_wake_action", False):
                     wake_steps.append(str(step_idx))
             f.write("    " + ", ".join(wake_steps) + "\n")
+        
+        # Add analysis section
+        f.write("\n\nAnalysis Summary:\n")
+        f.write("===============\n\n")
+        
+        # Analyze task completion
+        completion_diff = te_results["avg_metrics"]["avg_completion_rate"] - ff_results["avg_metrics"]["avg_completion_rate"]
+        completion_pct = (completion_diff / ff_results["avg_metrics"]["avg_completion_rate"]) * 100 if ff_results["avg_metrics"]["avg_completion_rate"] > 0 else 0
+        
+        f.write(f"Task Completion: ")
+        if abs(completion_pct) < 1:
+            f.write(f"Both models have similar task completion rates (difference: {completion_pct:.2f}%).\n")
+        else:
+            better = "TE-DQN" if completion_pct > 0 else "FF-DQN"
+            f.write(f"{better} shows {abs(completion_pct):.2f}% better task completion rate.\n")
+        
+        # Analyze energy efficiency
+        energy_diff = ff_results["avg_metrics"]["avg_energy_consumption"] - te_results["avg_metrics"]["avg_energy_consumption"]
+        energy_pct = (energy_diff / ff_results["avg_metrics"]["avg_energy_consumption"]) * 100 if ff_results["avg_metrics"]["avg_energy_consumption"] > 0 else 0
+        
+        f.write(f"Energy Efficiency: ")
+        if energy_diff > 0:
+            f.write(f"TE-DQN is more energy efficient, consuming {energy_pct:.2f}% less energy.\n")
+        elif energy_diff < 0:
+            f.write(f"FF-DQN is more energy efficient, consuming {-energy_pct:.2f}% less energy.\n")
+        else:
+            f.write(f"Both models have similar energy consumption.\n")
+        
+        # Analyze latency
+        latency_diff = ff_results["avg_metrics"]["avg_latency"] - te_results["avg_metrics"]["avg_latency"]
+        latency_pct = (latency_diff / ff_results["avg_metrics"]["avg_latency"]) * 100 if ff_results["avg_metrics"]["avg_latency"] > 0 else 0
+        
+        f.write(f"Latency: ")
+        if latency_diff > 0:
+            f.write(f"TE-DQN achieves {latency_pct:.2f}% lower latency.\n")
+        elif latency_diff < 0:
+            f.write(f"FF-DQN achieves {-latency_pct:.2f}% lower latency.\n")
+        else:
+            f.write(f"Both models have similar latency performance.\n")
+        
+        # Overall conclusion
+        f.write("\nOverall Performance: ")
+        
+        advantages_te = []
+        advantages_ff = []
+        
+        for metric, values in metrics.items():
+            diff = values[1] - values[0]
+            if metric in ["Rejection Rate", "Latency", "Energy", "Queue Length"]:
+                # Lower is better
+                if diff < -0.01:  # Small threshold to ignore minor differences
+                    advantages_te.append(metric)
+                elif diff > 0.01:
+                    advantages_ff.append(metric)
+            else:
+                # Higher is better
+                if diff > 0.01:
+                    advantages_te.append(metric)
+                elif diff < -0.01:
+                    advantages_ff.append(metric)
+        
+        if len(advantages_te) > len(advantages_ff):
+            f.write(f"TE-DQN outperforms FF-DQN overall, with advantages in {', '.join(advantages_te)}.\n")
+        elif len(advantages_ff) > len(advantages_te):
+            f.write(f"FF-DQN outperforms TE-DQN overall, with advantages in {', '.join(advantages_ff)}.\n")
+        else:
+            f.write(f"Both models show comparable overall performance, with different strengths.\n")
+            if advantages_te:
+                f.write(f"TE-DQN excels in: {', '.join(advantages_te)}.\n")
+            if advantages_ff:
+                f.write(f"FF-DQN excels in: {', '.join(advantages_ff)}.\n")
+# def generate_comparisons(ff_results, te_results, output_dir):
+#     """Generate comparison visualizations specifically for stress test"""
+#     if ff_results is None or te_results is None:
+#         print("Cannot generate comparisons: missing results")
+#         return
+    
+#     # Set up the style
+#     plt.style.use('seaborn-v0_8-darkgrid')
+    
+#     # 1. Wake Decision Comparison
+#     plt.figure(figsize=(10, 6))
+#     model_names = ["FF-DQN", "TE-DQN"]
+#     wake_decisions = [
+#         np.mean(ff_results["wake_decisions"]), 
+#         np.mean(te_results["wake_decisions"])
+#     ]
+#     plt.bar(model_names, wake_decisions, color=['blue', 'orange'])
+#     plt.ylabel("Average Wake Decisions per Episode")
+#     plt.title("Wake Decisions Under High Load")
+#     for i, v in enumerate(wake_decisions):
+#         plt.text(i, v + 0.5, f"{v:.2f}", ha='center')
+#     plt.savefig(os.path.join(output_dir, "wake_decisions_comparison.png"), dpi=300, bbox_inches='tight')
+#     plt.close()
+    
+#     # 2. Performance Metrics Comparison
+#     metrics = {
+#         "Avg Reward": [ff_results["avg_metrics"]["avg_reward"], te_results["avg_metrics"]["avg_reward"]],
+#         "Completion Rate": [ff_results["avg_metrics"]["avg_completion_rate"], te_results["avg_metrics"]["avg_completion_rate"]],
+#         "Rejection Rate": [ff_results["avg_metrics"]["avg_rejection_rate"], te_results["avg_metrics"]["avg_rejection_rate"]],
+#         "Latency": [ff_results["avg_metrics"]["avg_latency"], te_results["avg_metrics"]["avg_latency"]],
+#         "Energy": [ff_results["avg_metrics"]["avg_energy_consumption"], te_results["avg_metrics"]["avg_energy_consumption"]],
+#         "Queue Length": [ff_results["avg_metrics"]["avg_queue_length"], te_results["avg_metrics"]["avg_queue_length"]]
+#     }
+    
+#     plt.figure(figsize=(14, 8))
+#     x = np.arange(len(metrics))
+#     width = 0.35
+    
+#     fig, ax = plt.subplots(figsize=(14, 8))
+#     ax.bar(x - width/2, [m[0] for m in metrics.values()], width, label="FF-DQN")
+#     ax.bar(x + width/2, [m[1] for m in metrics.values()], width, label="TE-DQN")
+    
+#     ax.set_xticks(x)
+#     ax.set_xticklabels(metrics.keys())
+#     ax.legend()
+#     ax.set_title("Performance Metrics Under High Load")
+    
+#     plt.savefig(os.path.join(output_dir, "performance_metrics.png"), dpi=300, bbox_inches='tight')
+#     plt.close()
+    
+#     # 3. Queue Length Over Time (for first episode if available)
+#     plt.figure(figsize=(12, 6))
+    
+#     if (ff_results["episode_data"] and len(ff_results["episode_data"]) > 0 and 
+#         te_results["episode_data"] and len(te_results["episode_data"]) > 0):
+        
+#         # Extract queue lengths over time
+#         ff_steps = [step_data["queue_length"] for step_data in ff_results["episode_data"][0]["step_data"]]
+#         ff_steps_indices = range(len(ff_steps))
+#         plt.plot(ff_steps_indices, ff_steps, 'b-', label='FF-DQN Queue Length')
+        
+#         te_steps = [step_data["queue_length"] for step_data in te_results["episode_data"][0]["step_data"]]
+#         te_steps_indices = range(len(te_steps))
+#         plt.plot(te_steps_indices, te_steps, 'r-', label='TE-DQN Queue Length')
+        
+#         plt.xlabel("Simulation Steps")
+#         plt.ylabel("Queue Length")
+#         plt.title("Queue Length Over Time (First Episode)")
+#         plt.legend()
+#         plt.grid(True)
+#         plt.savefig(os.path.join(output_dir, "queue_length_over_time.png"), dpi=300, bbox_inches='tight')
+#     plt.close()
+    
+#     # 4. Active Nodes Over Time (for first episode if available)
+#     plt.figure(figsize=(12, 6))
+    
+#     if (ff_results["episode_data"] and len(ff_results["episode_data"]) > 0 and 
+#         te_results["episode_data"] and len(te_results["episode_data"]) > 0):
+        
+#         # Extract active nodes over time
+#         ff_active = [step_data["active_node_ratio"] for step_data in ff_results["episode_data"][0]["step_data"]]
+#         ff_active_indices = range(len(ff_active))
+#         plt.plot(ff_active_indices, ff_active, 'b-', label='FF-DQN Active Nodes Ratio')
+        
+#         te_active = [step_data["active_node_ratio"] for step_data in te_results["episode_data"][0]["step_data"]]
+#         te_active_indices = range(len(te_active))
+#         plt.plot(te_active_indices, te_active, 'r-', label='TE-DQN Active Nodes Ratio')
+        
+#         plt.xlabel("Simulation Steps")
+#         plt.ylabel("Active Nodes Ratio")
+#         plt.title("Active Nodes Over Time (First Episode)")
+#         plt.legend()
+#         plt.grid(True)
+#         plt.savefig(os.path.join(output_dir, "active_nodes_over_time.png"), dpi=300, bbox_inches='tight')
+#     plt.close()
+    
+#     # 5. Wake Decision Timing (if data is available)
+#     plt.figure(figsize=(12, 6))
+    
+#     if (ff_results["episode_data"] and len(ff_results["episode_data"]) > 0 and 
+#         te_results["episode_data"] and len(te_results["episode_data"]) > 0):
+        
+#         # Extract wake decisions over time
+#         ff_wake_steps = []
+#         for step_idx, step_data in enumerate(ff_results["episode_data"][0]["step_data"]):
+#             if step_data.get("is_wake_action", False):
+#                 ff_wake_steps.append(step_idx)
+        
+#         te_wake_steps = []
+#         for step_idx, step_data in enumerate(te_results["episode_data"][0]["step_data"]):
+#             if step_data.get("is_wake_action", False):
+#                 te_wake_steps.append(step_idx)
+        
+#         # Plot vertical lines at wake decision points
+#         y_min, y_max = 0, 1  # Y-axis range for the lines
+        
+#         for step in ff_wake_steps:
+#             plt.axvline(x=step, color='blue', linestyle='--', alpha=0.7)
+        
+#         for step in te_wake_steps:
+#             plt.axvline(x=step, color='red', linestyle='--', alpha=0.7)
+        
+#         plt.xlabel("Simulation Steps")
+#         plt.title("Wake Decision Timing (First Episode)")
+#         plt.yticks([])  # Hide y-axis ticks as they're not meaningful
+        
+#         # Create custom legend even if no wake decisions
+#         from matplotlib.lines import Line2D
+#         legend_elements = [
+#             Line2D([0], [0], color='blue', linestyle='--', label='FF-DQN Wake'),
+#             Line2D([0], [0], color='red', linestyle='--', label='TE-DQN Wake')
+#         ]
+#         plt.legend(handles=legend_elements)
+        
+#         plt.grid(True)
+#         plt.savefig(os.path.join(output_dir, "wake_decision_timing.png"), dpi=300, bbox_inches='tight')
+#     plt.close()
+    
+#     # Create summary text file
+#     with open(os.path.join(output_dir, "stress_test_summary.txt"), 'w') as f:
+#         f.write("Stress Test Summary\n")
+#         f.write("=================\n\n")
+#         f.write(f"Test Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+        
+#         f.write("Episode Lengths:\n")
+#         f.write(f"  FF-DQN: {np.mean(ff_results['termination_steps']):.2f} steps per episode\n")
+#         f.write(f"  TE-DQN: {np.mean(te_results['termination_steps']):.2f} steps per episode\n\n")
+        
+#         f.write("Wake Decisions:\n")
+#         f.write(f"  FF-DQN: {np.mean(ff_results['wake_decisions']):.2f} per episode\n")
+#         f.write(f"  TE-DQN: {np.mean(te_results['wake_decisions']):.2f} per episode\n\n")
+        
+#         f.write("Performance Metrics:\n")
+#         for metric, values in metrics.items():
+#             f.write(f"  {metric}:\n")
+#             f.write(f"    FF-DQN: {values[0]:.4f}\n")
+#             f.write(f"    TE-DQN: {values[1]:.4f}\n")
+#             diff = values[1] - values[0]
+#             pct = (diff / values[0]) * 100 if values[0] != 0 else 0
+#             better = "TE-DQN" if diff > 0 else "FF-DQN" if diff < 0 else "Equal"
+#             # For metrics where lower is better, flip the comparison
+#             if metric in ["Rejection Rate", "Latency", "Energy", "Queue Length"]:
+#                 better = "TE-DQN" if diff < 0 else "FF-DQN" if diff > 0 else "Equal"
+#                 pct = -pct
+#             f.write(f"    Difference: {diff:.4f} ({pct:.2f}%), Better: {better}\n\n")
+        
+#         f.write("\nDetailed Wake Decisions:\n")
+#         if ff_results["episode_data"]:
+#             f.write("  FF-DQN Wake Steps (Episode 1):\n")
+#             wake_steps = []
+#             for step_idx, step_data in enumerate(ff_results["episode_data"][0]["step_data"]):
+#                 if step_data.get("is_wake_action", False):
+#                     wake_steps.append(str(step_idx))
+#             f.write("    " + ", ".join(wake_steps) + "\n\n")
+        
+#         if te_results["episode_data"]:
+#             f.write("  TE-DQN Wake Steps (Episode 1):\n")
+#             wake_steps = []
+#             for step_idx, step_data in enumerate(te_results["episode_data"][0]["step_data"]):
+#                 if step_data.get("is_wake_action", False):
+#                     wake_steps.append(str(step_idx))
+#             f.write("    " + ", ".join(wake_steps) + "\n")
 
 def main():
     parser = argparse.ArgumentParser(description="Run stress test evaluation on VEC models")

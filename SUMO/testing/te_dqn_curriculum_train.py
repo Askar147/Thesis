@@ -59,135 +59,135 @@ def run_phase(phase_name, phase_dir, cmd):
         return models[0]  # Return newest model
     return None
 
-# Phase 1: Low load training
-phase1_dir = os.path.join(BASE_DIR, "phase1")
-os.makedirs(phase1_dir, exist_ok=True)
+# # Phase 1: Low load training
+# phase1_dir = os.path.join(BASE_DIR, "phase1")
+# os.makedirs(phase1_dir, exist_ok=True)
 
-# Kill any existing SUMO processes before starting
-kill_sumo()
+# # Kill any existing SUMO processes before starting
+# kill_sumo()
 
-# # Run Phase 1
-# phase1_cmd = [
+# # # Run Phase 1
+# # phase1_cmd = [
+# #     "python", "fix_train_transformer_main.py",  # Use our fixed version
+# #     "--energy_csv", ENERGY_CSV,
+# #     "--energy_weight", "0.7",
+# #     "--episodes", "200",
+# #     "--max_steps", "1000",
+# #     "--duration", "300",
+# #     "--output_dir", phase1_dir,
+# #     "--min_tasks", "10",
+# #     "--max_tasks", "15",
+# #     "--seq_length", "16",
+# #     "--d_model", "128",
+# #     "--nheads", "4",
+# #     "--skip_evaluation"  # Important: skip evaluation to avoid input prompt
+# # ]
+
+# # phase1_model = run_phase("Phase 1: Low Load Training", phase1_dir, phase1_cmd)
+
+# # if not phase1_model:
+# #     print("Error: Phase 1 did not produce a model. Exiting.")
+# #     sys.exit(1)
+
+# # # Copy Phase 1 model to checkpoint
+# # checkpoint1 = os.path.join(MODELS_DIR, "te_dqn_phase1.pt")
+# # shutil.copy(phase1_model, checkpoint1)
+# # print(f"Phase 1 model saved to: {checkpoint1}")
+
+# # # Wait between phases
+# # print(f"Waiting {WAIT_TIME} seconds between phases...")
+# # time.sleep(WAIT_TIME)
+
+# # # Kill SUMO processes before Phase 2
+# # kill_sumo()
+
+# # Phase 2: Medium load training
+# phase2_dir = os.path.join(BASE_DIR, "phase2")
+# os.makedirs(phase2_dir, exist_ok=True)
+
+# # Run Phase 2
+# phase2_cmd = [
 #     "python", "fix_train_transformer_main.py",  # Use our fixed version
 #     "--energy_csv", ENERGY_CSV,
-#     "--energy_weight", "0.7",
-#     "--episodes", "200",
+#     "--energy_weight", "0.6",
+#     "--episodes", "300",
 #     "--max_steps", "1000",
 #     "--duration", "300",
-#     "--output_dir", phase1_dir,
-#     "--min_tasks", "10",
-#     "--max_tasks", "15",
+#     "--output_dir", phase2_dir,
+#     "--min_tasks", "20",
+#     "--max_tasks", "30",
 #     "--seq_length", "16",
 #     "--d_model", "128",
 #     "--nheads", "4",
+#     # "--load_model", phase1_model,
 #     "--skip_evaluation"  # Important: skip evaluation to avoid input prompt
 # ]
 
-# phase1_model = run_phase("Phase 1: Low Load Training", phase1_dir, phase1_cmd)
+# phase2_model = run_phase("Phase 2: Medium Load Training", phase2_dir, phase2_cmd)
 
-# if not phase1_model:
-#     print("Error: Phase 1 did not produce a model. Exiting.")
-#     sys.exit(1)
-
-# # Copy Phase 1 model to checkpoint
-# checkpoint1 = os.path.join(MODELS_DIR, "te_dqn_phase1.pt")
-# shutil.copy(phase1_model, checkpoint1)
-# print(f"Phase 1 model saved to: {checkpoint1}")
+# # if not phase2_model:
+# #     print("Warning: Phase 2 did not produce a model. Using Phase 1 model.")
+# #     phase2_model = phase1_model
+# # else:
+# #     # Copy Phase 2 model to checkpoint
+# #     checkpoint2 = os.path.join(MODELS_DIR, "te_dqn_phase2.pt")
+# #     shutil.copy(phase2_model, checkpoint2)
+# #     print(f"Phase 2 model saved to: {checkpoint2}")
 
 # # Wait between phases
 # print(f"Waiting {WAIT_TIME} seconds between phases...")
 # time.sleep(WAIT_TIME)
 
-# # Kill SUMO processes before Phase 2
+# # Kill SUMO processes before Phase 3
 # kill_sumo()
 
-# Phase 2: Medium load training
-phase2_dir = os.path.join(BASE_DIR, "phase2")
-os.makedirs(phase2_dir, exist_ok=True)
+# # Phase 3: High load training
+# phase3_dir = os.path.join(BASE_DIR, "phase3")
+# os.makedirs(phase3_dir, exist_ok=True)
 
-# Run Phase 2
-phase2_cmd = [
-    "python", "fix_train_transformer_main.py",  # Use our fixed version
-    "--energy_csv", ENERGY_CSV,
-    "--energy_weight", "0.6",
-    "--episodes", "300",
-    "--max_steps", "1000",
-    "--duration", "300",
-    "--output_dir", phase2_dir,
-    "--min_tasks", "20",
-    "--max_tasks", "30",
-    "--seq_length", "16",
-    "--d_model", "128",
-    "--nheads", "4",
-    # "--load_model", phase1_model,
-    "--skip_evaluation"  # Important: skip evaluation to avoid input prompt
-]
+# # Run Phase 3
+# phase3_cmd = [
+#     "python", "fix_train_transformer_main.py",  # Use our fixed version
+#     "--energy_csv", ENERGY_CSV,
+#     "--energy_weight", "0.5",
+#     "--episodes", "500",
+#     "--max_steps", "1000",
+#     "--duration", "300",
+#     "--output_dir", phase3_dir,
+#     "--min_tasks", "40",
+#     "--max_tasks", "50",
+#     "--seq_length", "16",
+#     "--d_model", "128",
+#     "--nheads", "4",
+#     # "--load_model", phase2_model,
+#     "--skip_evaluation"  # Important: skip evaluation to avoid input prompt
+# ]
 
-phase2_model = run_phase("Phase 2: Medium Load Training", phase2_dir, phase2_cmd)
+# phase3_model = run_phase("Phase 3: High Load Training", phase3_dir, phase3_cmd)
 
-# if not phase2_model:
-#     print("Warning: Phase 2 did not produce a model. Using Phase 1 model.")
-#     phase2_model = phase1_model
-# else:
-#     # Copy Phase 2 model to checkpoint
-#     checkpoint2 = os.path.join(MODELS_DIR, "te_dqn_phase2.pt")
-#     shutil.copy(phase2_model, checkpoint2)
-#     print(f"Phase 2 model saved to: {checkpoint2}")
+# # if not phase3_model:
+# #     print("Warning: Phase 3 did not produce a model. Using Phase 2 model.")
+# #     phase3_model = phase2_model
 
-# Wait between phases
-print(f"Waiting {WAIT_TIME} seconds between phases...")
-time.sleep(WAIT_TIME)
+# # Copy Phase 3 model to checkpoint if available
+# if phase3_model:
+#     checkpoint3 = os.path.join(MODELS_DIR, "te_dqn_phase3.pt")
+#     shutil.copy(phase3_model, checkpoint3)
+#     print(f"Phase 3 model saved to: {checkpoint3}")
 
-# Kill SUMO processes before Phase 3
-kill_sumo()
+# # Wait between phases
+# print(f"Waiting {WAIT_TIME} seconds between phases...")
+# time.sleep(WAIT_TIME)
 
-# Phase 3: High load training
-phase3_dir = os.path.join(BASE_DIR, "phase3")
-os.makedirs(phase3_dir, exist_ok=True)
-
-# Run Phase 3
-phase3_cmd = [
-    "python", "fix_train_transformer_main.py",  # Use our fixed version
-    "--energy_csv", ENERGY_CSV,
-    "--energy_weight", "0.5",
-    "--episodes", "500",
-    "--max_steps", "1000",
-    "--duration", "300",
-    "--output_dir", phase3_dir,
-    "--min_tasks", "40",
-    "--max_tasks", "50",
-    "--seq_length", "16",
-    "--d_model", "128",
-    "--nheads", "4",
-    # "--load_model", phase2_model,
-    "--skip_evaluation"  # Important: skip evaluation to avoid input prompt
-]
-
-phase3_model = run_phase("Phase 3: High Load Training", phase3_dir, phase3_cmd)
-
-# if not phase3_model:
-#     print("Warning: Phase 3 did not produce a model. Using Phase 2 model.")
-#     phase3_model = phase2_model
-
-# Copy Phase 3 model to checkpoint if available
-if phase3_model:
-    checkpoint3 = os.path.join(MODELS_DIR, "te_dqn_phase3.pt")
-    shutil.copy(phase3_model, checkpoint3)
-    print(f"Phase 3 model saved to: {checkpoint3}")
-
-# Wait between phases
-print(f"Waiting {WAIT_TIME} seconds between phases...")
-time.sleep(WAIT_TIME)
-
-# Kill SUMO processes before Phase 4
-kill_sumo()
+# # Kill SUMO processes before Phase 4
+# kill_sumo()
 
 # Phase 4: Extreme load training (New phase with 500 max tasks)
 phase4_dir = os.path.join(BASE_DIR, "phase4_extreme")
 os.makedirs(phase4_dir, exist_ok=True)
 
 # Use the best model from previous phases
-best_model = phase3_model if phase3_model else phase2_model if phase2_model else phase1_model
+# best_model = phase3_model if phase3_model else phase2_model if phase2_model else phase1_model
 
 # Run Phase 4 with extreme load
 phase4_cmd = [

@@ -1,0 +1,40 @@
+{
+    "environment": {
+        "sumo_config": "astana.sumocfg",
+        "simulation_duration": 500,
+        "time_step": 1,
+        "queue_process_interval": 5,
+        "max_queue_length": 50,
+        "history_length": 10,
+        "energy_csv_path": "merged_dag1.csv",
+        "energy_weight": 0.5,
+        "latency_model_params": {
+            "frequency_band": 2.4,
+            "bandwidth": 20,
+            "noise_floor": -95
+        },
+        "min_tasks_per_step": 450,
+        "max_tasks_per_step": 500,
+        "task_generation_probability": 1,
+        "seed": 42
+    },
+    "agent": {
+        "num_episodes": 400,
+        "max_steps": 10000,
+        "eval_frequency": 50,
+        "seq_length": 16,
+        "d_model": 128,
+        "nhead": 4,
+        "num_layers": 3,
+        "dropout": 0.1,
+        "batch_size": 64,
+        "gamma": 0.99,
+        "tau": 0.01,
+        "min_replay_size": 1000,
+        "epsilon_min": 0.05,
+        "epsilon_decay_steps": 2000,
+        "lr": 0.0003,
+        "weight_decay": 1e-05,
+        "load_model": null
+    }
+}
